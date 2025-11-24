@@ -19,6 +19,15 @@ export default function Home() {
           Open the app
         </a>
       </div>
+
+      <div className="section">
+        <h2>API & data layer</h2>
+        <p>
+          A health-check endpoint at <code>/api/health</code> now verifies database
+          connectivity. Update your <code>DATABASE_URL</code> in <code>.env</code> or compose
+          overrides to point at your PostgreSQL instance before hitting the route.
+        </p>
+      </div>
     </main>
   );
 }
