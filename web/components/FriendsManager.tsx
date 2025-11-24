@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AppTabs } from "./AppTabs";
+import { DebtModal } from "./DebtModal";
 import { Friend, FriendDebt, FriendDebtDirection, loadFriends, persistFriends } from "@/lib/friendsStore";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -38,80 +40,51 @@ function summarize(friend: Friend) {
   );
 }
 
-function DebtModal({
-  friend,
-  direction,
-  onSave,
+function AddFriendModal({
+  friendName,
+  onChange,
   onClose,
+  onSubmit,
 }: {
-  friend: Friend;
-  direction: FriendDebtDirection;
-  onSave: (amount: number, note: string) => void;
+  friendName: string;
+  onChange: (value: string) => void;
   onClose: () => void;
+  onSubmit: () => void;
 }) {
-  const [amount, setAmount] = useState("");
-  const [note, setNote] = useState("");
-
-  function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    const parsedAmount = Number.parseFloat(amount);
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      alert("Enter a valid amount greater than zero");
-      return;
-    }
-
-    onSave(Number(parsedAmount.toFixed(2)), note.trim());
-    setAmount("");
-    setNote("");
-    onClose();
-  }
-
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="modal">
         <header className="modal__header">
           <div>
-            <p className="eyebrow">{direction === "fromFriend" ? "Debt from" : "Debt to"}</p>
-            <h3>{friend.name}</h3>
+            <p className="eyebrow">Add friend</p>
+            <h3>Create someone to track debts with</h3>
           </div>
           <button className="text-button" onClick={onClose} type="button">
             Close
           </button>
         </header>
-        <form className="modal__form" onSubmit={handleSubmit}>
-          <label className="input-group" htmlFor="amount">
-            <span>Amount</span>
-            <div className="input-with-prefix">
-              <span>$</span>
-              <input
-                id="amount"
-                name="amount"
-                type="number"
-                step="0.01"
-                value={amount}
-                min={0}
-                onChange={(event) => setAmount(event.target.value)}
-                placeholder="0.00"
-                required
-              />
-            </div>
-          </label>
-
-          <label className="input-group" htmlFor="note">
-            <span>Note</span>
-            <textarea
-              id="note"
-              name="note"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder="Add details like what the debt covers or due dates"
-              rows={3}
+        <form
+          className="modal__form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmit();
+          }}
+        >
+          <label className="input-group" htmlFor="newFriendName">
+            <span>Name</span>
+            <input
+              id="newFriendName"
+              name="newFriendName"
+              value={friendName}
+              onChange={(event) => onChange(event.target.value)}
+              placeholder="Roommate, travel buddy, or vendor"
+              required
             />
           </label>
 
           <div className="modal__actions">
             <button className="cta-button" type="submit">
-              Save debt
+              Save friend
             </button>
             <button className="text-button" type="button" onClick={onClose}>
               Cancel
@@ -134,8 +107,9 @@ export function FriendsManager({
   const [friends, setFriends] = useState<Friend[]>([]);
   const [friendName, setFriendName] = useState("");
   const [ready, setReady] = useState(false);
-  const [expandedFriend, setExpandedFriend] = useState<string | null>(null);
   const [debtEditor, setDebtEditor] = useState<DebtEditor | null>(null);
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const router = useRouter();
 
   const seeds = useMemo(() => seedFriends ?? [], [seedFriends]);
 
@@ -162,20 +136,27 @@ export function FriendsManager({
     );
   }, [friends]);
 
-  function handleAddFriend(event: React.FormEvent) {
-    event.preventDefault();
+  function handleAddFriend() {
     const name = friendName.trim();
     if (!name) return;
 
     setFriends((existing) => [{ id: crypto.randomUUID(), name, debts: [] }, ...existing]);
     setFriendName("");
+    setShowAddFriend(false);
   }
 
-  function handleAddDebt(friendId: string, direction: FriendDebtDirection, amount: number, note: string) {
+  function handleAddDebt(
+    friendId: string,
+    direction: FriendDebtDirection,
+    title: string,
+    amount: number,
+    description: string,
+  ) {
     const entry: FriendDebt = {
       id: crypto.randomUUID(),
+      title,
       amount,
-      note,
+      description,
       direction,
       createdAt: new Date().toISOString(),
     };
@@ -186,6 +167,8 @@ export function FriendsManager({
       ),
     );
   }
+
+  const friendsPath = mode === "offline" ? "/offline/friends" : "/online/friends";
 
   return (
     <main>
@@ -209,111 +192,83 @@ export function FriendsManager({
         </div>
       </header>
 
-      <section className="friend-grid">
-        <div className="section">
-          <h2>Add a friend</h2>
-          <p className="muted">Keep people organised so you can assign debts quickly.</p>
-          <form className="friend-form" onSubmit={handleAddFriend}>
-            <label className="input-group" htmlFor="friendName">
-              <span>Name</span>
-              <input
-                id="friendName"
-                name="friendName"
-                value={friendName}
-                onChange={(event) => setFriendName(event.target.value)}
-                placeholder="Roommate, travel buddy, or vendor"
-                required
-              />
-            </label>
-            <button className="cta-button" type="submit">
-              Add friend
-            </button>
-          </form>
-        </div>
+      <section className="section">
+        <header className="section-header">
+          <div>
+            <h2>Friends</h2>
+            <p className="muted">Tap a friend to open their full debt history.</p>
+          </div>
+        </header>
 
-        <div className="section">
-          <h2>Friends</h2>
-          {friends.length === 0 ? (
-            <p className="muted">{emptyHint}</p>
-          ) : (
-            <div className="friend-list">
-              {friends.map((friend) => {
-                const summary = summarize(friend);
-                const isExpanded = expandedFriend === friend.id;
-
-                return (
-                  <article key={friend.id} className={`friend-card ${isExpanded ? "expanded" : ""}`}>
-                    <header className="friend-card__header" onClick={() => setExpandedFriend(isExpanded ? null : friend.id)}>
-                      <div>
-                        <p className="label">{friend.debts.length} debt{friend.debts.length === 1 ? "" : "s"}</p>
-                        <h3>{friend.name}</h3>
-                        <p className="muted">Tap to {isExpanded ? "hide" : "view"} their summary.</p>
-                      </div>
-                      <div className="balance">
-                        <span className={`pill ${summary.balance >= 0 ? "positive" : "negative"}`}>
-                          {summary.balance >= 0 ? "They owe" : "I owe"}
-                        </span>
-                        <strong className="balance__value">{currencyFormatter.format(Math.abs(summary.balance))}</strong>
-                      </div>
-                    </header>
-
-                    <div className="friend-card__actions">
-                      <button
-                        type="button"
-                        className="outline-button"
-                        onClick={() => setDebtEditor({ friendId: friend.id, direction: "fromFriend" })}
-                      >
-                        Debt from
-                      </button>
-                      <button
-                        type="button"
-                        className="outline-button"
-                        onClick={() => setDebtEditor({ friendId: friend.id, direction: "toFriend" })}
-                      >
-                        Debt to
-                      </button>
-                    </div>
-
-                    {isExpanded ? (
-                      <div className="debt-breakdown">
-                        <div className="debt-breakdown__totals">
-                          <div>
-                            <p className="label">They owe me</p>
-                            <p className="total">{currencyFormatter.format(summary.owedToMe)}</p>
-                          </div>
-                          <div>
-                            <p className="label">I owe them</p>
-                            <p className="total">{currencyFormatter.format(summary.iOwe)}</p>
-                          </div>
-                        </div>
-                        <div className="debt-list debt-list--inline">
-                          {friend.debts.length === 0 ? (
-                            <p className="muted">No debts yet for this friend.</p>
-                          ) : (
-                            friend.debts.map((debt) => (
-                              <article key={debt.id} className="debt-card compact">
-                                <header className="debt-card__header">
-                                  <div>
-                                    <p className="label">{new Date(debt.createdAt).toLocaleString()}</p>
-                                    <h4>{debt.direction === "fromFriend" ? "They owe me" : "I owe them"}</h4>
-                                  </div>
-                                  <span className={`chip ${debt.direction === "fromFriend" ? "lent" : "borrowed"}`}>
-                                    {debt.direction === "fromFriend" ? "From friend" : "To friend"}
-                                  </span>
-                                </header>
-                                <p className="debt-card__amount">{currencyFormatter.format(debt.amount)}</p>
-                                {debt.note ? <p className="muted">{debt.note}</p> : null}
-                              </article>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    ) : null}
-                  </article>
-                );
-              })}
+        <div className="friend-list-grid">
+          <button
+            type="button"
+            className="friend-card add-friend-card"
+            onClick={() => setShowAddFriend(true)}
+            aria-label="Add friend"
+          >
+            <span className="add-friend-card__icon">＋</span>
+            <div>
+              <p className="label">Add friend</p>
+              <p className="muted">Create a new friend to track debts.</p>
             </div>
-          )}
+          </button>
+
+          {friends.length === 0 ? <p className="muted friend-grid__empty">{emptyHint}</p> : null}
+
+          {friends.map((friend) => {
+            const summary = summarize(friend);
+            const lastDebt = friend.debts[0];
+
+            return (
+              <article
+                key={friend.id}
+                className="friend-card clickable"
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(`${friendsPath}/${friend.id}`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    router.push(`${friendsPath}/${friend.id}`);
+                  }
+                }}
+              >
+                <header className="friend-card__header">
+                  <div>
+                    <p className="label">{friend.debts.length} debt{friend.debts.length === 1 ? "" : "s"}</p>
+                    <h3>{friend.name}</h3>
+                    <p className="muted">
+                      {lastDebt ? `Latest: ${lastDebt.title}` : "No debts yet. Open to add one."}
+                    </p>
+                  </div>
+                  <div className="balance">
+                    <span className={`pill ${summary.balance >= 0 ? "positive" : "negative"}`}>
+                      {summary.balance >= 0 ? "They owe" : "I owe"}
+                    </span>
+                    <strong className="balance__value">{currencyFormatter.format(Math.abs(summary.balance))}</strong>
+                  </div>
+                </header>
+
+                <div className="friend-card__actions" onClick={(event) => event.stopPropagation()}>
+                  <button
+                    type="button"
+                    className="outline-button"
+                    onClick={() => setDebtEditor({ friendId: friend.id, direction: "fromFriend" })}
+                  >
+                    Debt from
+                  </button>
+                  <button
+                    type="button"
+                    className="outline-button"
+                    onClick={() => setDebtEditor({ friendId: friend.id, direction: "toFriend" })}
+                  >
+                    Debt to
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -321,8 +276,22 @@ export function FriendsManager({
         <DebtModal
           friend={friends.find((friend) => friend.id === debtEditor.friendId)!}
           direction={debtEditor.direction}
-          onSave={(amount, note) => handleAddDebt(debtEditor.friendId, debtEditor.direction, amount, note)}
+          onSave={(title, amount, description) =>
+            handleAddDebt(debtEditor.friendId, debtEditor.direction, title, amount, description)
+          }
           onClose={() => setDebtEditor(null)}
+        />
+      ) : null}
+
+      {showAddFriend ? (
+        <AddFriendModal
+          friendName={friendName}
+          onChange={setFriendName}
+          onClose={() => {
+            setFriendName("");
+            setShowAddFriend(false);
+          }}
+          onSubmit={handleAddFriend}
         />
       ) : null}
     </main>
