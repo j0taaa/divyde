@@ -1,7 +1,7 @@
 "use client";
 
 import { FriendDetail } from "@/components/FriendDetail";
-import { seedFriends } from "../page";
+import { seedFriends } from "@/lib/seedFriends";
 
 export default function OnlineFriendDetail({ params }: { params: { friendId: string } }) {
   return (
