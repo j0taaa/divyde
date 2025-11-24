@@ -1,4 +1,5 @@
-import { OfflineDebtManager } from "@/components/OfflineDebtManager";
+import Link from "next/link";
+import { AppTabs } from "@/components/AppTabs";
 
 export default function Home() {
   return (
@@ -6,36 +7,45 @@ export default function Home() {
       <div className="badge">Web</div>
       <h1>Welcome to Divyde</h1>
       <p>
-        Divyde keeps your shared expenses organized. You can start tracking debts
-        offline right away—no login required—and connect to the cloud later for
-        online sync and collaboration.
+        Divyde keeps shared expenses organised with a simple split between offline and online
+        workspaces. Pick a tab to jump straight into your friends list, add debts to and from each
+        person, and keep balances visible at a glance.
       </p>
+
+      <AppTabs />
 
       <div className="section-grid">
         <div className="section">
-          <h2>Getting started</h2>
+          <h2>Offline workspace</h2>
           <p>
-            Use <code>npm run dev</code> to start local development. The app is
-            structured with the App Router and already includes styling hooks for
-            call-to-action elements and page sections.
+            Add friends, track who owes what, and stay productive without a connection. Everything is
+            saved to your device until you are ready to sync.
           </p>
-          <a className="cta-button" href="/">
-            Open the app
-          </a>
+          <Link className="cta-button" href="/offline/friends">
+            Open offline friends
+          </Link>
         </div>
 
         <div className="section">
-          <h2>Online features</h2>
+          <h2>Online workspace</h2>
           <p>
-            A health-check endpoint at <code>/api/health</code> verifies database
-            connectivity when a <code>DATABASE_URL</code> is configured. Without
-            it, the app runs offline and warns that cloud features are
-            unavailable instead of failing to build.
+            Prepare debts for cloud sync and collaboration. Start capturing entries and be ready to
+            turn on online services when your account is configured.
           </p>
+          <Link className="cta-button" href="/online/friends">
+            Open online friends
+          </Link>
         </div>
       </div>
 
-      <OfflineDebtManager />
+      <div className="section">
+        <h2>How debts work</h2>
+        <p className="muted">
+          Each friend in either tab has quick buttons for adding a debt from them or to them.
+          Clicking a friend reveals the full history, a per-friend summary, and the current balance
+          so you always know where things stand.
+        </p>
+      </div>
     </main>
   );
 }

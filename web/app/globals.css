@@ -20,6 +20,14 @@ main {
   padding: 48px 24px;
 }
 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
 h1 {
   font-size: clamp(2rem, 4vw, 2.5rem);
   margin-bottom: 16px;
@@ -260,6 +268,183 @@ p {
   color: #92400e;
 }
 
+.tabs {
+  display: inline-flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
+  margin-bottom: 24px;
+}
+
+.tab {
+  padding: 12px 18px;
+  text-decoration: none;
+  color: #0f172a;
+  font-weight: 700;
+  border-right: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #f8fafc, #ffffff);
+}
+
+.tab:last-of-type {
+  border-right: none;
+}
+
+.tab.active {
+  background: linear-gradient(145deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+
+.friend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.friend-form {
+  display: grid;
+  gap: 12px;
+}
+
+.friend-list {
+  display: grid;
+  gap: 12px;
+}
+
+.friend-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.friend-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.balance__value {
+  font-size: 1.2rem;
+}
+
+.pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+}
+
+.pill.positive {
+  background-color: #e0f2fe;
+  color: #075985;
+  border-color: #bae6fd;
+}
+
+.pill.negative {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.friend-card__actions {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.outline-button {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.outline-button:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.debt-breakdown {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.debt-breakdown__totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.debt-list--inline .debt-card.compact {
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+}
+
+.debt-card.compact .debt-card__header {
+  cursor: default;
+}
+
+.totals.compact {
+  align-self: center;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 20;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  width: min(520px, 100%);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.2);
+  border: 1px solid #e2e8f0;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal__form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 @media (max-width: 640px) {
   .debt-card__header {
     flex-direction: column;
@@ -267,6 +452,25 @@ p {
   }
 
   .debt-card__actions {
+    flex-direction: column;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tabs {
+    width: 100%;
+  }
+
+  .friend-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .friend-card__actions,
+  .modal__actions {
     flex-direction: column;
   }
 }
