@@ -54,7 +54,7 @@ function sanitizeFriends(raw: unknown): Friend[] {
                 createdAt: typedDebt.createdAt,
               } satisfies FriendDebt;
             })
-            .filter(Boolean)
+            .filter((debt): debt is FriendDebt => Boolean(debt))
         : [];
 
       return {
@@ -63,7 +63,7 @@ function sanitizeFriends(raw: unknown): Friend[] {
         debts,
       } satisfies Friend;
     })
-    .filter(Boolean) as Friend[];
+    .filter((friend): friend is Friend => Boolean(friend));
 }
 
 function cloneFriends(friends: Friend[]): Friend[] {
