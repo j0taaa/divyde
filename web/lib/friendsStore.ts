@@ -21,49 +21,51 @@ function isStorageAvailable() {
 function sanitizeFriends(raw: unknown): Friend[] {
   if (!Array.isArray(raw)) return [];
 
-  return raw
-    .map((friend) => {
-      if (!friend || typeof friend !== "object") return null;
+  const sanitized: Friend[] = [];
 
-      const typedFriend = friend as Partial<Friend>;
-      if (typeof typedFriend.id !== "string" || typeof typedFriend.name !== "string") {
-        return null;
+  for (const friend of raw) {
+    if (!friend || typeof friend !== "object") continue;
+
+    const typedFriend = friend as Partial<Friend>;
+    if (typeof typedFriend.id !== "string" || typeof typedFriend.name !== "string") {
+      continue;
+    }
+
+    const debts: FriendDebt[] = [];
+
+    if (Array.isArray(typedFriend.debts)) {
+      for (const debt of typedFriend.debts) {
+        if (!debt || typeof debt !== "object") continue;
+        const typedDebt = debt as Partial<FriendDebt>;
+        if (
+          typeof typedDebt.id !== "string" ||
+          typeof typedDebt.amount !== "number" ||
+          !Number.isFinite(typedDebt.amount) ||
+          typedDebt.amount < 0 ||
+          (typedDebt.direction !== "fromFriend" && typedDebt.direction !== "toFriend") ||
+          typeof typedDebt.createdAt !== "string"
+        ) {
+          continue;
+        }
+
+        debts.push({
+          id: typedDebt.id,
+          amount: Number(typedDebt.amount.toFixed(2)),
+          note: typedDebt.note ?? "",
+          direction: typedDebt.direction,
+          createdAt: typedDebt.createdAt,
+        });
       }
+    }
 
-      const debts = Array.isArray(typedFriend.debts)
-        ? typedFriend.debts
-            .map((debt) => {
-              if (!debt || typeof debt !== "object") return null;
-              const typedDebt = debt as Partial<FriendDebt>;
-              if (
-                typeof typedDebt.id !== "string" ||
-                typeof typedDebt.amount !== "number" ||
-                !Number.isFinite(typedDebt.amount) ||
-                typedDebt.amount < 0 ||
-                (typedDebt.direction !== "fromFriend" && typedDebt.direction !== "toFriend") ||
-                typeof typedDebt.createdAt !== "string"
-              ) {
-                return null;
-              }
+    sanitized.push({
+      id: typedFriend.id,
+      name: typedFriend.name,
+      debts,
+    });
+  }
 
-              return {
-                id: typedDebt.id,
-                amount: Number(typedDebt.amount.toFixed(2)),
-                note: typedDebt.note ?? "",
-                direction: typedDebt.direction,
-                createdAt: typedDebt.createdAt,
-              } satisfies FriendDebt;
-            })
-            .filter((debt): debt is FriendDebt => Boolean(debt))
-        : [];
-
-      return {
-        id: typedFriend.id,
-        name: typedFriend.name,
-        debts,
-      } satisfies Friend;
-    })
-    .filter((friend): friend is Friend => Boolean(friend));
+  return sanitized;
 }
 
 function cloneFriends(friends: Friend[]): Friend[] {
