@@ -3,19 +3,23 @@ import { AppTabs } from "@/components/AppTabs";
 
 export default function Home() {
   return (
-    <main>
-      <div className="badge">Web</div>
-      <h1>Welcome to Divyde</h1>
-      <p>
-        Divyde keeps shared expenses organised with a simple split between offline and online
-        workspaces. Pick a tab to jump straight into your friends list, add debts to and from each
-        person, and keep balances visible at a glance.
-      </p>
+    <main className="home">
+      <section className="hero-panel">
+        <div className="badge">Web</div>
+        <div className="hero-heading">
+          <h1>Welcome to Divyde</h1>
+          <p>
+            Divyde keeps shared expenses organised with clear spaces for offline and online work.
+            Jump into a workspace, add debts to and from each person, and keep balances visible at a
+            glance.
+          </p>
+        </div>
 
-      <AppTabs />
+        <AppTabs />
+      </section>
 
-      <div className="section-grid">
-        <div className="section">
+      <div className="section-grid stretch">
+        <div className="section highlight">
           <h2>Offline workspace</h2>
           <p>
             Add friends, track who owes what, and stay productive without a connection. Everything is
@@ -26,7 +30,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="section">
+        <div className="section highlight">
           <h2>Online workspace</h2>
           <p>
             Prepare debts for cloud sync and collaboration. Start capturing entries and be ready to
@@ -38,7 +42,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="section">
+      <div className="section callout">
         <h2>How debts work</h2>
         <p className="muted">
           Each friend in either tab has quick buttons for adding a debt from them or to them.
