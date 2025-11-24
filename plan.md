@@ -10,7 +10,7 @@ Build a full-stack platform for Divyde with a Next.js web experience, a service 
    - Document environment configuration, including external PostgreSQL connectivity.
 
 2. **Authentication & Accounts**
-   - Set up auth provider (e.g., NextAuth or custom JWT service) and session storage.
+   - Set up auth provider with BetterAuth (Next.js adapter) and secure session storage.
    - Create user models, migrations, and onboarding flows.
    - Protect routes and API endpoints with role-based access control.
 
@@ -37,5 +37,5 @@ Build a full-stack platform for Divyde with a Next.js web experience, a service 
 ## Immediate Next Steps
 - Flesh out domain requirements with stakeholders to break down core features.
 - Add API layer and data access utilities connected to PostgreSQL.
-- Implement initial authentication mechanism and protected routes.
+- Implement initial authentication mechanism and protected routes using BetterAuth sessions and guards.
 - Add basic CI pipeline (lint + type-check) to guard the new web workspace.
