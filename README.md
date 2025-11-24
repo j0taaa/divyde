@@ -1,17 +1,47 @@
-# divyde
+# Divyde
 
-This app is going to be used to keep track of debt between friends in groups of friends
+Divyde is a shared ledger for tracking debts between friends and within groups. The platform will include both a web experience (Next.js) and a mobile app (React Native with Expo), supporting online collaboration and an offline-only mode for personal tracking.
 
-There is going to be a website and an app for it (both on this repository). For web, it uses NextJS and, for the app, it uses react native with expo
+Key capabilities will include:
+- Creating groups and logging debts between individual members.
+- Viewing and settling shared balances, with a “graph equalization” feature for simplifying cycles using max-flow logic.
+- Offline entry (local-only) and online sync for authenticated users.
 
-On it, there will be the possibility to have groups and have debt with individual people. 
+## Tech stack
+- **Web:** Next.js (App Router, TypeScript), Tailwind + shadcn/ui planned.
+- **Mobile:** React Native with Expo (future work).
+- **Database:** PostgreSQL (local container by default; you can also point to an external PostgreSQL URL when provided by your infrastructure).
+- **Containers:** Docker + Docker Compose for local orchestration.
 
-There will be the offline and online sections of the app. For the offline, just the user has access to the debts that he is adding. He adds the debt and the reason of it and the data is kept offline
+## Development quickstart
+### Local (Node)
+1. Install Node.js 20+.
+2. Install dependencies:
+   ```bash
+   cd web
+   npm install
+   ```
+3. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+4. Open http://localhost:3000.
 
-For the online, there will be logged in users that can create debts between each other and inside of groups, and data is available to everyone in the group or for the user
+### Containers
+Use Docker Compose to run the web app and a local PostgreSQL instance:
+```bash
+docker-compose up --build
+```
 
-Also there will be a feature to equalize the debt graph. this means if there is a debt cycle, it will make the maximum flow algorithm
+- The web app runs on port **3000**.
+- The Compose file also starts PostgreSQL on **5432**. Set `DATABASE_URL` to override and connect to an external PostgreSQL instance instead of the local container if your environment already provides one.
 
-Use containers for the architecture (using postgresql database and the nextjs server(separate containers))
+## Repository map
+- `plan.md` – project milestones and immediate next steps.
+- `web/` – Next.js app scaffold, TypeScript, linting, and container assets.
+- `docker-compose.yml` – local orchestration for web + PostgreSQL.
 
-Use tailwind, and, for the web, use shadcn/ui
+## Next steps
+- Expand the API/data layer to connect the web app to PostgreSQL.
+- Add authentication and role-based access control for online features.
+- Introduce Tailwind and shadcn/ui for rapid UI development.
