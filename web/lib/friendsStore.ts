@@ -2,8 +2,9 @@ export type FriendDebtDirection = "fromFriend" | "toFriend";
 
 export type FriendDebt = {
   id: string;
+  title: string;
   amount: number;
-  note?: string;
+  description?: string;
   direction: FriendDebtDirection;
   createdAt: string;
 };
@@ -36,7 +37,7 @@ function sanitizeFriends(raw: unknown): Friend[] {
     if (Array.isArray(typedFriend.debts)) {
       for (const debt of typedFriend.debts) {
         if (!debt || typeof debt !== "object") continue;
-        const typedDebt = debt as Partial<FriendDebt>;
+        const typedDebt = debt as Partial<FriendDebt> & { note?: string };
         if (
           typeof typedDebt.id !== "string" ||
           typeof typedDebt.amount !== "number" ||
@@ -50,8 +51,13 @@ function sanitizeFriends(raw: unknown): Friend[] {
 
         debts.push({
           id: typedDebt.id,
+          title: typedDebt.title && typeof typedDebt.title === "string"
+            ? typedDebt.title
+            : typedDebt.note && typeof typedDebt.note === "string"
+              ? typedDebt.note
+              : "Untitled debt",
           amount: Number(typedDebt.amount.toFixed(2)),
-          note: typedDebt.note ?? "",
+          description: typedDebt.description ?? typedDebt.note ?? "",
           direction: typedDebt.direction,
           createdAt: typedDebt.createdAt,
         });

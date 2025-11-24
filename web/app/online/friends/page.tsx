@@ -1,15 +1,16 @@
 import { FriendsManager } from "@/components/FriendsManager";
 import type { Friend } from "@/lib/friendsStore";
 
-const seedFriends: Friend[] = [
+export const seedFriends: Friend[] = [
   {
     id: "seed-riley",
     name: "Riley",
     debts: [
       {
         id: "seed-riley-flight",
+        title: "Airport rideshare",
         amount: 85,
-        note: "Covered group rideshare from airport",
+        description: "Covered group rideshare from airport",
         direction: "fromFriend",
         createdAt: new Date().toISOString(),
       },
@@ -21,8 +22,9 @@ const seedFriends: Friend[] = [
     debts: [
       {
         id: "seed-ava-brunch",
+        title: "Team brunch",
         amount: 42.5,
-        note: "Brunch for the team meetup",
+        description: "Brunch for the team meetup",
         direction: "toFriend",
         createdAt: new Date().toISOString(),
       },
