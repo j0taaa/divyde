@@ -253,14 +253,14 @@ export function FriendsManager({
                 <div className="friend-card__actions" onClick={(event) => event.stopPropagation()}>
                   <button
                     type="button"
-                    className="outline-button"
+                    className="outline-button action-from"
                     onClick={() => setDebtEditor({ friendId: friend.id, direction: "fromFriend" })}
                   >
                     Debt from
                   </button>
                   <button
                     type="button"
-                    className="outline-button"
+                    className="outline-button action-to"
                     onClick={() => setDebtEditor({ friendId: friend.id, direction: "toFriend" })}
                   >
                     Debt to
