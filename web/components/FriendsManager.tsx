@@ -178,16 +178,24 @@ export function FriendsManager({
         <div>
           <p className="eyebrow">{mode === "offline" ? "Works without network" : "Cloud ready"}</p>
           <h1>{title}</h1>
-          <p>{helperText}</p>
+          <div className="helper-banner">
+            <p className="muted compact">{helperText}</p>
+            <div className="helper-banner__badges">
+              <span className="chip pill subtle">Private to your device</span>
+              <span className="chip pill subtle">One tap to update debts</span>
+            </div>
+          </div>
         </div>
-        <div className="totals compact">
+        <div className="totals compact totals-panel">
           <div className="totals-card">
             <p className="label">Others owe me</p>
             <p className="total">{currencyFormatter.format(totals.owedToMe)}</p>
+            <p className="muted compact">Keep this positive to stay ahead.</p>
           </div>
           <div className="totals-card owed">
             <p className="label">I owe others</p>
             <p className="total">{currencyFormatter.format(totals.iOwe)}</p>
+            <p className="muted compact">Pay these down to stay balanced.</p>
           </div>
         </div>
       </header>
@@ -219,6 +227,9 @@ export function FriendsManager({
           {friends.map((friend) => {
             const summary = summarize(friend);
             const lastDebt = friend.debts[0];
+            const lastUpdated = lastDebt
+              ? new Date(lastDebt.createdAt).toLocaleDateString()
+              : "No activity yet";
 
             return (
               <article
@@ -235,20 +246,39 @@ export function FriendsManager({
                 }}
               >
                 <header className="friend-card__header">
-                  <div>
-                    <p className="label">{friend.debts.length} debt{friend.debts.length === 1 ? "" : "s"}</p>
-                    <h3>{friend.name}</h3>
-                    <p className="muted">
-                      {lastDebt ? `Latest: ${lastDebt.title}` : "No debts yet. Open to add one."}
+                  <div className="friend-avatar" aria-hidden="true">
+                    {friend.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="friend-card__title">
+                    <div className="friend-card__row">
+                      <h3>{friend.name}</h3>
+                      <span className={`pill ${summary.balance >= 0 ? "positive" : "negative"}`}>
+                        {summary.balance >= 0 ? "They owe" : "I owe"}
+                      </span>
+                    </div>
+                    <p className="muted compact">
+                      {lastDebt
+                        ? `Latest: ${lastDebt.title}`
+                        : "No debts yet. Open this card to start tracking."}
                     </p>
                   </div>
-                  <div className="balance">
-                    <span className={`pill ${summary.balance >= 0 ? "positive" : "negative"}`}>
-                      {summary.balance >= 0 ? "They owe" : "I owe"}
-                    </span>
-                    <strong className="balance__value">{currencyFormatter.format(Math.abs(summary.balance))}</strong>
-                  </div>
+                  <div className="friend-card__chevron">View →</div>
                 </header>
+
+                <div className="friend-card__stats">
+                  <div>
+                    <p className="label">They owe me</p>
+                    <p className="stat-value positive">{currencyFormatter.format(summary.owedToMe)}</p>
+                  </div>
+                  <div>
+                    <p className="label">I owe them</p>
+                    <p className="stat-value negative">{currencyFormatter.format(summary.iOwe)}</p>
+                  </div>
+                  <div>
+                    <p className="label">Last update</p>
+                    <p className="muted compact">{lastUpdated}</p>
+                  </div>
+                </div>
 
                 <div className="friend-card__actions" onClick={(event) => event.stopPropagation()}>
                   <button
@@ -256,14 +286,14 @@ export function FriendsManager({
                     className="outline-button action-from"
                     onClick={() => setDebtEditor({ friendId: friend.id, direction: "fromFriend" })}
                   >
-                    Debt from
+                    Log debt from them
                   </button>
                   <button
                     type="button"
                     className="outline-button action-to"
                     onClick={() => setDebtEditor({ friendId: friend.id, direction: "toFriend" })}
                   >
-                    Debt to
+                    Log debt to them
                   </button>
                 </div>
               </article>
