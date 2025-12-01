@@ -80,6 +80,19 @@ export function FriendDetail({ friendId, storageKey, mode, seedFriends }: Props)
     setDebtEditor(null);
   }
 
+  function handleDeleteFriend() {
+    if (!friend) return;
+
+    const confirmed = window.confirm(
+      `Delete ${friend.name}? This will remove their debt history from your ${mode} list.`,
+    );
+
+    if (!confirmed) return;
+
+    setFriends((existing) => existing.filter((entry) => entry.id !== friend.id));
+    router.push(friendsPath);
+  }
+
   return (
     <main>
       <AppTabs />
@@ -117,22 +130,30 @@ export function FriendDetail({ friendId, storageKey, mode, seedFriends }: Props)
       ) : (
         <>
           <section className="section friend-detail__actions">
-            <h2>Log a debt</h2>
-              <div className="friend-card__actions">
-                <button
-                  type="button"
-                  className="outline-button action-from"
-                  onClick={() => setDebtEditor({ direction: "fromFriend" })}
-                >
-                  Debt from
-                </button>
-                <button
-                  type="button"
-                  className="outline-button action-to"
-                  onClick={() => setDebtEditor({ direction: "toFriend" })}
-                >
-                  Debt to
-                </button>
+            <header className="section-header">
+              <div>
+                <h2>Log a debt</h2>
+                <p className="muted compact">Capture what you owe or what they owe with one tap.</p>
+              </div>
+              <button type="button" className="text-button danger" onClick={handleDeleteFriend}>
+                Delete friend
+              </button>
+            </header>
+            <div className="friend-card__actions">
+              <button
+                type="button"
+                className="outline-button action-from"
+                onClick={() => setDebtEditor({ direction: "fromFriend" })}
+              >
+                Debt from
+              </button>
+              <button
+                type="button"
+                className="outline-button action-to"
+                onClick={() => setDebtEditor({ direction: "toFriend" })}
+              >
+                Debt to
+              </button>
             </div>
           </section>
 
