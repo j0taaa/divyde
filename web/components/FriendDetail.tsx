@@ -15,7 +15,6 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 type Props = {
   friendId: string;
   storageKey: string;
-  mode: "offline" | "online";
   seedFriends?: Friend[];
 };
 
@@ -38,7 +37,7 @@ function summarize(friend: Friend) {
   );
 }
 
-export function FriendDetail({ friendId, storageKey, mode, seedFriends }: Props) {
+export function FriendDetail({ friendId, storageKey, seedFriends }: Props) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [ready, setReady] = useState(false);
   const [debtEditor, setDebtEditor] = useState<DebtEditor | null>(null);
@@ -58,7 +57,7 @@ export function FriendDetail({ friendId, storageKey, mode, seedFriends }: Props)
 
   const friend = friends.find((entry) => entry.id === friendId);
   const summary = friend ? summarize(friend) : null;
-  const friendsPath = mode === "offline" ? "/offline/friends" : "/online/friends";
+  const friendsPath = "/friends";
 
   function handleAddDebt(direction: FriendDebtDirection, title: string, amount: number, description: string) {
     if (!friend) return;
@@ -83,9 +82,7 @@ export function FriendDetail({ friendId, storageKey, mode, seedFriends }: Props)
   function handleDeleteFriend() {
     if (!friend) return;
 
-    const confirmed = window.confirm(
-      `Delete ${friend.name}? This will remove their debt history from your ${mode} list.`,
-    );
+    const confirmed = window.confirm(`Delete ${friend.name}? This will remove their debt history.`);
 
     if (!confirmed) return;
 
@@ -102,7 +99,7 @@ export function FriendDetail({ friendId, storageKey, mode, seedFriends }: Props)
           <button className="text-button" type="button" onClick={() => router.push(friendsPath)}>
             ← Back to friends
           </button>
-          <p className="eyebrow">{mode === "offline" ? "Offline workspace" : "Online workspace"}</p>
+          <p className="eyebrow">Saved on your device</p>
           <h1>{friend ? friend.name : "Friend not found"}</h1>
           <p className="muted">Review the full debt history with this friend.</p>
         </div>
@@ -122,7 +119,7 @@ export function FriendDetail({ friendId, storageKey, mode, seedFriends }: Props)
 
       {!friend ? (
         <section className="section">
-          <p className="muted">We couldn&apos;t find that friend in your {mode} list.</p>
+          <p className="muted">We couldn&apos;t find that friend in your saved list.</p>
           <Link className="cta-button" href={friendsPath}>
             Back to friends
           </Link>

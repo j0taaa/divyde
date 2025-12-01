@@ -347,6 +347,98 @@ p {
   border: 1px solid #bbf7d0;
 }
 
+.muted-chip {
+  background: #e0f2fe;
+  color: #0f172a;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+
+.quick-add {
+  display: grid;
+  gap: 16px;
+}
+
+.quick-add__form {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.direction-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.direction-pill {
+  flex: 1;
+  min-width: 220px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.direction-pill.active {
+  border-color: #0f172a;
+  background: linear-gradient(135deg, #0f172a, #1f2937);
+  color: #e2e8f0;
+}
+
+.direction-pill.active .muted {
+  color: #cbd5e1;
+}
+
+.direction-pill__label {
+  font-weight: 800;
+}
+
+.quick-add__actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toast {
+  background: #ecfdf3;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.auth-card {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-card.compact {
+  padding: 16px;
+}
+
+.auth-card__form {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.auth-card__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .chip {
   padding: 6px 10px;
   border-radius: 999px;
@@ -429,10 +521,9 @@ p {
 
 .friend-list-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
-  align-items: stretch;
-  grid-auto-rows: 1fr;
+  align-items: start;
 }
 
 .friend-grid__empty {
@@ -446,13 +537,13 @@ p {
   padding: 16px;
   background: linear-gradient(180deg, #ffffff, #f8fafc);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-  height: 100%;
   transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
   position: relative;
   overflow: hidden;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 240px;
 }
 
 .friend-card::after {
@@ -503,15 +594,17 @@ p {
   gap: 12px;
   align-items: center;
   justify-content: flex-start;
-  background: linear-gradient(140deg, #ffffff, #f4f4f5);
+  background: linear-gradient(140deg, #eef2ff, #ffffff);
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  border-style: dashed;
+  border-color: #c7d2fe;
 }
 
 .friend-card.add-friend-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
-  border-color: #d4d4d8;
+  border-color: #818cf8;
 }
 
 .friend-card.add-friend-card:focus-visible {
@@ -584,9 +677,9 @@ p {
 }
 
 .pill.subtle {
-  background: rgba(226, 232, 240, 0.1);
-  color: #e2e8f0;
-  border-color: rgba(226, 232, 240, 0.16);
+  background: #e0f2fe;
+  color: #0f172a;
+  border-color: #bae6fd;
 }
 
 .friend-card__actions {
@@ -623,6 +716,43 @@ p {
 
 .stat-value.negative {
   color: #92400e;
+}
+
+.friend-card__menu {
+  margin-left: auto;
+  position: relative;
+}
+
+.icon-button {
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
+}
+
+.icon-button:hover {
+  background: #111827;
+}
+
+.friend-card__menu-items {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14);
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+  z-index: 2;
 }
 
 .friend-card__chevron {

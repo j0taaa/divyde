@@ -21,8 +21,8 @@ type Props = {
   title: string;
   helperText: string;
   emptyHint: string;
-  mode: "offline" | "online";
   seedFriends?: Friend[];
+  helperBadges?: string[];
 };
 
 function summarize(friend: Friend) {
@@ -101,14 +101,15 @@ export function FriendsManager({
   title,
   helperText,
   emptyHint,
-  mode,
   seedFriends,
+  helperBadges = ["Private to your device", "One tap to update debts"],
 }: Props) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [friendName, setFriendName] = useState("");
   const [ready, setReady] = useState(false);
   const [debtEditor, setDebtEditor] = useState<DebtEditor | null>(null);
   const [showAddFriend, setShowAddFriend] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const router = useRouter();
 
   const seeds = useMemo(() => seedFriends ?? [], [seedFriends]);
@@ -162,9 +163,7 @@ export function FriendsManager({
     };
 
     setFriends((existing) =>
-      existing.map((friend) =>
-        friend.id === friendId ? { ...friend, debts: [entry, ...friend.debts] } : friend,
-      ),
+      existing.map((friend) => (friend.id === friendId ? { ...friend, debts: [entry, ...friend.debts] } : friend)),
     );
   }
 
@@ -183,7 +182,7 @@ export function FriendsManager({
     }
   }
 
-  const friendsPath = mode === "offline" ? "/offline/friends" : "/online/friends";
+  const friendsPath = "/friends";
 
   return (
     <main>
@@ -191,13 +190,16 @@ export function FriendsManager({
 
       <header className="page-header">
         <div>
-          <p className="eyebrow">{mode === "offline" ? "Works without network" : "Cloud ready"}</p>
+          <p className="eyebrow">PWA workspace</p>
           <h1>{title}</h1>
           <div className="helper-banner">
             <p className="muted compact">{helperText}</p>
             <div className="helper-banner__badges">
-              <span className="chip pill subtle">Private to your device</span>
-              <span className="chip pill subtle">One tap to update debts</span>
+              {helperBadges.map((badge) => (
+                <span key={badge} className="chip pill subtle">
+                  {badge}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -277,7 +279,40 @@ export function FriendsManager({
                         : "No debts yet. Open this card to start tracking."}
                     </p>
                   </div>
-                  <div className="friend-card__chevron">View →</div>
+                  <div className="friend-card__menu" onClick={(event) => event.stopPropagation()}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      aria-label="Friend actions"
+                      onClick={() => setMenuOpenId((current) => (current === friend.id ? null : friend.id))}
+                    >
+                      ⋯
+                    </button>
+                    {menuOpenId === friend.id ? (
+                      <div className="friend-card__menu-items">
+                        <button
+                          type="button"
+                          className="text-button danger"
+                          onClick={() => {
+                            handleDeleteFriend(friend.id);
+                            setMenuOpenId(null);
+                          }}
+                        >
+                          Delete friend
+                        </button>
+                        <button
+                          type="button"
+                          className="text-button"
+                          onClick={() => {
+                            router.push(`${friendsPath}/${friend.id}`);
+                            setMenuOpenId(null);
+                          }}
+                        >
+                          Open details
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
                 </header>
 
                 <div className="friend-card__stats">
@@ -309,13 +344,6 @@ export function FriendsManager({
                     onClick={() => setDebtEditor({ friendId: friend.id, direction: "toFriend" })}
                   >
                     Debt to
-                  </button>
-                  <button
-                    type="button"
-                    className="text-button danger friend-card__delete"
-                    onClick={() => handleDeleteFriend(friend.id)}
-                  >
-                    Delete friend
                   </button>
                 </div>
               </article>
