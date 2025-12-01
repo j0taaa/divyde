@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { href: "/offline/friends", label: "Offline" },
-  { href: "/online/friends", label: "Online" },
+  { href: "/add-debt", label: "Quick add" },
+  { href: "/friends", label: "Friends" },
+  { href: "/account", label: "Account" },
 ];
 
 export function AppTabs() {
