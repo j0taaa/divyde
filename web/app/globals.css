@@ -19,7 +19,7 @@ body {
 
 main {
   margin: 0 auto;
-  max-width: 1180px;
+  max-width: 1320px;
   padding: 64px 32px 72px;
 }
 
@@ -429,9 +429,10 @@ p {
 
 .friend-list-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
   align-items: stretch;
+  grid-auto-rows: 1fr;
 }
 
 .friend-grid__empty {
@@ -449,6 +450,9 @@ p {
   transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
   position: relative;
   overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 340px;
 }
 
 .friend-card::after {
@@ -592,6 +596,12 @@ p {
   width: 100%;
   padding-top: 12px;
   border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.friend-card__delete {
+  margin-left: auto;
 }
 
 .friend-card__stats {

@@ -168,6 +168,21 @@ export function FriendsManager({
     );
   }
 
+  function handleDeleteFriend(friendId: string) {
+    const friend = friends.find((entry) => entry.id === friendId);
+    const confirmed = window.confirm(
+      `Delete ${friend?.name ?? "this friend"}? This will also remove their debt history.`,
+    );
+
+    if (!confirmed) return;
+
+    setFriends((existing) => existing.filter((friend) => friend.id !== friendId));
+
+    if (debtEditor?.friendId === friendId) {
+      setDebtEditor(null);
+    }
+  }
+
   const friendsPath = mode === "offline" ? "/offline/friends" : "/online/friends";
 
   return (
@@ -286,14 +301,21 @@ export function FriendsManager({
                     className="outline-button action-from"
                     onClick={() => setDebtEditor({ friendId: friend.id, direction: "fromFriend" })}
                   >
-                    Log debt from them
+                    Debt from
                   </button>
                   <button
                     type="button"
                     className="outline-button action-to"
                     onClick={() => setDebtEditor({ friendId: friend.id, direction: "toFriend" })}
                   >
-                    Log debt to them
+                    Debt to
+                  </button>
+                  <button
+                    type="button"
+                    className="text-button danger friend-card__delete"
+                    onClick={() => handleDeleteFriend(friend.id)}
+                  >
+                    Delete friend
                   </button>
                 </div>
               </article>
