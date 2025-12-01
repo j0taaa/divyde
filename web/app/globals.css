@@ -523,7 +523,8 @@ p {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  grid-auto-rows: 1fr;
 }
 
 .friend-grid__empty {
@@ -543,7 +544,8 @@ p {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 240px;
+  aspect-ratio: 1 / 1;
+  height: 100%;
 }
 
 .friend-card::after {
@@ -589,16 +591,17 @@ p {
 }
 
 .friend-card.add-friend-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  text-align: center;
   background: linear-gradient(140deg, #eef2ff, #ffffff);
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
   border-style: dashed;
   border-color: #c7d2fe;
+  aspect-ratio: 1 / 1;
 }
 
 .friend-card.add-friend-card:hover {
@@ -610,6 +613,15 @@ p {
 .friend-card.add-friend-card:focus-visible {
   outline: 2px solid #0f172a;
   outline-offset: 3px;
+}
+
+.friend-card.add-friend-card .label {
+  margin: 8px 0 4px;
+}
+
+.friend-card.add-friend-card .muted {
+  margin: 0;
+  max-width: 22ch;
 }
 
 .add-friend-card__icon {
@@ -724,35 +736,50 @@ p {
 }
 
 .icon-button {
-  background: #0f172a;
-  color: #e2e8f0;
-  border: 1px solid #1e293b;
+  background: #0b1f59;
+  color: #e5edff;
+  border: 1px solid #102a82;
   border-radius: 10px;
   width: 38px;
   height: 38px;
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 10px 20px rgba(16, 42, 130, 0.25);
 }
 
 .icon-button:hover {
-  background: #111827;
+  background: #123499;
 }
 
 .friend-card__menu-items {
   position: absolute;
   right: 0;
   top: calc(100% + 6px);
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 8px;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14);
+  background: linear-gradient(150deg, #0f172a, #0b1f3a);
+  border: 1px solid #1d4ed8;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 18px 38px rgba(13, 39, 95, 0.35);
   display: grid;
   gap: 6px;
-  min-width: 180px;
+  min-width: 190px;
   z-index: 2;
+}
+
+.friend-card__menu-items .text-button {
+  color: #e2e8f0;
+  padding: 8px 10px;
+  text-align: left;
+  border-radius: 10px;
+}
+
+.friend-card__menu-items .text-button.danger {
+  color: #fecdd3;
+}
+
+.friend-card__menu-items .text-button:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .friend-card__chevron {
