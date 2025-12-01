@@ -20,13 +20,10 @@ export default function Home() {
   return (
     <main className="home">
       <section className="hero-panel">
-        <div className="badge">PWA</div>
+        <div className="badge">Shared expenses</div>
         <div className="hero-heading">
-          <h1>Divyde lives as a PWA</h1>
-          <p>
-            Install the web app, stay signed in, and track shared expenses from anywhere. Debts stay on your
-            device and sync when you come back.
-          </p>
+          <h1>Split costs without the clutter</h1>
+          <p>Keep tabs on who paid for what, settle balances quickly, and move on from the awkward math.</p>
         </div>
 
         <AppTabs />
@@ -36,8 +33,8 @@ export default function Home() {
         <div className="section highlight">
           <h2>Quick add</h2>
           <p>
-            Jump right into logging a debt with autocomplete for existing friends. Your session is stored so
-            you can open the PWA and start typing immediately.
+            Jump right into logging a debt with autocomplete for existing friends. Stay signed in so you can
+            open the app and start typing immediately.
           </p>
           <Link className="cta-button" href="/add-debt">
             Open quick add
@@ -47,8 +44,8 @@ export default function Home() {
         <div className="section highlight">
           <h2>Friends workspace</h2>
           <p>
-            Review balances, edit debts, and manage your friend list. Everything is saved locally for a fast
-            PWA experience.
+            Review balances, edit debts, and manage your friend list. Everything stays organized so you know
+            where you stand with everyone.
           </p>
           <Link className="cta-button" href="/friends">
             Open friends
@@ -60,7 +57,7 @@ export default function Home() {
         <h2>How debts work</h2>
         <p className="muted">
           Each friend has quick buttons for adding a debt from them or to them. The quick add screen lets you
-          log a single entry and get back to your day while the PWA keeps your session alive.
+          log a single entry and get back to your day while your session stays ready for the next update.
         </p>
       </div>
 

@@ -190,7 +190,7 @@ export function FriendsManager({
 
       <header className="page-header">
         <div>
-          <p className="eyebrow">PWA workspace</p>
+          <p className="eyebrow">Shared ledger</p>
           <h1>{title}</h1>
           <div className="helper-banner">
             <p className="muted compact">{helperText}</p>
