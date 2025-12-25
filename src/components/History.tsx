@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { SmartAvatar } from "@/components/SmartAvatar";
-import { mockFriends, mockDebts, type Debt } from "@/lib/mockData";
+import { Debt } from "@/lib/api";
 import { Check, Calendar, ArrowUpRight, ArrowDownLeft, Filter } from "lucide-react";
 import { useState } from "react";
 
 interface HistoryProps {
+  debts: Debt[];
+  totals: { totalOwed: number; totalOwing: number };
   onMarkPaid: (debtId: string) => void;
   onSelectFriend: (friendId: string) => void;
 }
@@ -46,7 +48,7 @@ function DebtHistoryCard({
   onMarkPaid: (debtId: string) => void;
   onSelectFriend: (friendId: string) => void;
 }) {
-  const friend = mockFriends.find((f) => f.id === debt.friendId);
+  const friend = debt.friend;
   const isTheyOwe = debt.direction === "they-owe";
 
   if (!friend) return null;
@@ -95,7 +97,7 @@ function DebtHistoryCard({
             )}
           </div>
           <span className={`text-sm truncate ${debt.isPaid ? "line-through text-muted-foreground" : "text-muted-foreground"}`}>
-            {debt.description}
+            {debt.description || "No description"}
           </span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
@@ -133,16 +135,11 @@ function DebtHistoryCard({
   );
 }
 
-export function History({ onMarkPaid, onSelectFriend }: HistoryProps) {
+export function History({ debts, totals, onMarkPaid, onSelectFriend }: HistoryProps) {
   const [filter, setFilter] = useState<FilterType>("all");
 
-  // Sort debts by date (newest first)
-  const sortedDebts = [...mockDebts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
   // Apply filter
-  const filteredDebts = sortedDebts.filter((debt) => {
+  const filteredDebts = debts.filter((debt) => {
     if (filter === "outstanding") return !debt.isPaid;
     if (filter === "paid") return debt.isPaid;
     return true;
@@ -158,14 +155,6 @@ export function History({ onMarkPaid, onSelectFriend }: HistoryProps) {
     return groups;
   }, {} as Record<string, Debt[]>);
 
-  // Calculate totals
-  const totalOwed = mockDebts
-    .filter((d) => !d.isPaid && d.direction === "they-owe")
-    .reduce((sum, d) => sum + d.amount, 0);
-  const totalOwing = mockDebts
-    .filter((d) => !d.isPaid && d.direction === "you-owe")
-    .reduce((sum, d) => sum + d.amount, 0);
-
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -177,13 +166,13 @@ export function History({ onMarkPaid, onSelectFriend }: HistoryProps) {
           <Card className="p-4">
             <div className="text-sm text-muted-foreground">You&apos;re owed</div>
             <div className="text-xl font-bold text-green-600 dark:text-green-400">
-              ${totalOwed.toFixed(2)}
+              ${totals.totalOwed.toFixed(2)}
             </div>
           </Card>
           <Card className="p-4">
             <div className="text-sm text-muted-foreground">You owe</div>
             <div className="text-xl font-bold text-red-600 dark:text-red-400">
-              ${totalOwing.toFixed(2)}
+              ${totals.totalOwing.toFixed(2)}
             </div>
           </Card>
         </div>
@@ -219,17 +208,19 @@ export function History({ onMarkPaid, onSelectFriend }: HistoryProps) {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center gap-2 py-8">
             <Filter className="h-8 w-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">No debts found</p>
+            <p className="text-sm text-muted-foreground">
+              {debts.length === 0 ? "No debts yet" : "No debts found"}
+            </p>
           </CardContent>
         </Card>
       ) : (
         <div className="flex flex-col gap-4">
-          {Object.entries(groupedDebts).map(([date, debts]) => (
+          {Object.entries(groupedDebts).map(([date, dateDebts]) => (
             <div key={date} className="flex flex-col gap-2">
               <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 {formatDate(date)}
               </h2>
-              {debts.map((debt) => (
+              {dateDebts.map((debt) => (
                 <DebtHistoryCard
                   key={debt.id}
                   debt={debt}

@@ -1,12 +1,19 @@
 "use client";
 
-import { FriendAvatar } from "@/components/FriendAvatar";
-import type { FriendAvatarData } from "@/lib/mockData";
+import { FriendAvatar, type HairStyle } from "@/components/FriendAvatar";
 import { getInitials, defaultAvatarColors } from "@/lib/mockData";
+
+interface AvatarData {
+  hairColor: string;
+  hairStyle: string;
+  eyeColor: string;
+  skinColor: string;
+  backgroundColor: string;
+}
 
 interface SmartAvatarProps {
   name: string;
-  avatar?: FriendAvatarData;
+  avatar?: AvatarData;
   avatarColor?: string;
   size?: number;
   className?: string;
@@ -34,7 +41,7 @@ export function SmartAvatar({
     return (
       <FriendAvatar
         hairColor={avatar.hairColor}
-        hairStyle={avatar.hairStyle}
+        hairStyle={avatar.hairStyle as HairStyle}
         eyeColor={avatar.eyeColor}
         skinColor={avatar.skinColor}
         backgroundColor={avatar.backgroundColor}

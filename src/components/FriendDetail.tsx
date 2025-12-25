@@ -1,16 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SmartAvatar } from "@/components/SmartAvatar";
-import {
-  mockFriends,
-  mockDebts,
-  calculateBalance,
-  getDebtsForFriend,
-  type Debt,
-} from "@/lib/mockData";
+import { api, Friend, Debt } from "@/lib/api";
 import { ArrowLeft, Check, Plus, Calendar, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
 interface FriendDetailProps {
@@ -59,7 +54,7 @@ function DebtCard({
         {/* Description and Date */}
         <div className="flex flex-1 flex-col gap-1">
           <span className={`font-medium ${debt.isPaid ? "line-through text-muted-foreground" : ""}`}>
-            {debt.description}
+            {debt.description || "No description"}
           </span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
@@ -107,23 +102,58 @@ export function FriendDetail({
   onAddDebt,
   onMarkPaid,
 }: FriendDetailProps) {
-  const friend = mockFriends.find((f) => f.id === friendId);
-  const debts = getDebtsForFriend(friendId, mockDebts);
-  const balance = calculateBalance(friendId, mockDebts);
+  const [friend, setFriend] = useState<(Friend & { debts: Debt[] }) | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const unpaidDebts = debts.filter((d) => !d.isPaid);
-  const paidDebts = debts.filter((d) => d.isPaid);
+  useEffect(() => {
+    const fetchFriend = async () => {
+      setIsLoading(true);
+      const { data, error: apiError } = await api.getFriend(friendId);
+      
+      if (apiError) {
+        setError(apiError);
+      } else if (data) {
+        setFriend(data.friend);
+      }
+      
+      setIsLoading(false);
+    };
 
-  if (!friend) {
+    fetchFriend();
+  }, [friendId]);
+
+  const handleMarkPaid = async (debtId: string) => {
+    await onMarkPaid(debtId);
+    // Refresh friend data
+    const { data } = await api.getFriend(friendId);
+    if (data) {
+      setFriend(data.friend);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (error || !friend) {
     return (
       <div className="flex flex-col items-center gap-4 py-12">
-        <p className="text-muted-foreground">Friend not found</p>
+        <p className="text-muted-foreground">{error || "Friend not found"}</p>
         <Button variant="outline" onClick={onBack}>
           Go Back
         </Button>
       </div>
     );
   }
+
+  const unpaidDebts = friend.debts.filter((d) => !d.isPaid);
+  const paidDebts = friend.debts.filter((d) => d.isPaid);
+  const balance = friend.balance;
 
   return (
     <div className="flex flex-col gap-6">
@@ -169,7 +199,7 @@ export function FriendDetail({
             Outstanding ({unpaidDebts.length})
           </h2>
           {unpaidDebts.map((debt) => (
-            <DebtCard key={debt.id} debt={debt} onMarkPaid={onMarkPaid} />
+            <DebtCard key={debt.id} debt={debt} onMarkPaid={handleMarkPaid} />
           ))}
         </div>
       )}
@@ -191,7 +221,7 @@ export function FriendDetail({
             History ({paidDebts.length})
           </h2>
           {paidDebts.map((debt) => (
-            <DebtCard key={debt.id} debt={debt} onMarkPaid={onMarkPaid} />
+            <DebtCard key={debt.id} debt={debt} onMarkPaid={handleMarkPaid} />
           ))}
         </div>
       )}

@@ -7,12 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SmartAvatar } from "@/components/SmartAvatar";
 import { hairColors, eyeColors, skinColors, backgroundColors, type HairStyle } from "@/components/FriendAvatar";
-import { mockFriends, mockDebts, calculateBalance, defaultAvatarColors, type Friend, type FriendAvatarData } from "@/lib/mockData";
+import { api, Friend, FriendAvatarData } from "@/lib/api";
+import { defaultAvatarColors } from "@/lib/mockData";
 import { ChevronRight, Plus, Search, User, X, UserPlus, Palette } from "lucide-react";
 
 interface FriendsListProps {
+  friends: Friend[];
   onAddDebt: (friendId: string) => void;
   onSelectFriend: (friendId: string) => void;
+  onFriendCreated: () => void;
 }
 
 const hairStyles: { value: HairStyle; label: string }[] = [
@@ -31,17 +34,15 @@ function formatBalance(balance: number): string {
 
 function FriendCard({
   friend,
-  balance,
   onAddDebt,
   onSelect,
 }: {
   friend: Friend;
-  balance: number;
   onAddDebt: (friendId: string) => void;
   onSelect: (friendId: string) => void;
 }) {
-  const isOwedMoney = balance > 0;
-  const isSettled = balance === 0;
+  const isOwedMoney = friend.balance > 0;
+  const isSettled = friend.balance === 0;
 
   return (
     <Card
@@ -66,11 +67,11 @@ function FriendCard({
             </Badge>
           ) : isOwedMoney ? (
             <span className="text-sm text-green-600 dark:text-green-400">
-              owes you <span className="font-semibold">{formatBalance(balance)}</span>
+              owes you <span className="font-semibold">{formatBalance(friend.balance)}</span>
             </span>
           ) : (
             <span className="text-sm text-red-600 dark:text-red-400">
-              you owe <span className="font-semibold">{formatBalance(balance)}</span>
+              you owe <span className="font-semibold">{formatBalance(friend.balance)}</span>
             </span>
           )}
         </div>
@@ -95,9 +96,11 @@ function FriendCard({
   );
 }
 
-function AddFriendForm({ onClose }: { onClose: () => void }) {
+function AddFriendForm({ onClose, onFriendCreated }: { onClose: () => void; onFriendCreated: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [useCustomAvatar, setUseCustomAvatar] = useState(false);
   const [selectedAvatarColor, setSelectedAvatarColor] = useState(defaultAvatarColors[0]);
   const [selectedHairColor, setSelectedHairColor] = useState(hairColors.darkBrown);
@@ -106,10 +109,24 @@ function AddFriendForm({ onClose }: { onClose: () => void }) {
   const [selectedSkinColor, setSelectedSkinColor] = useState(skinColors.fair);
   const [selectedBgColor, setSelectedBgColor] = useState(backgroundColors.blue);
 
-  const handleSubmit = () => {
-    const friendData: Partial<Friend> = {
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setError("");
+
+    const friendData: {
+      name: string;
+      email?: string;
+      avatarType: "initials" | "custom";
+      avatarColor?: string;
+      avatar?: FriendAvatarData;
+    } = {
       name,
+      avatarType: useCustomAvatar ? "custom" : "initials",
     };
+
+    if (email) {
+      friendData.email = email;
+    }
 
     if (useCustomAvatar) {
       friendData.avatar = {
@@ -123,7 +140,15 @@ function AddFriendForm({ onClose }: { onClose: () => void }) {
       friendData.avatarColor = selectedAvatarColor;
     }
 
-    console.log(friendData);
+    const { error: apiError } = await api.createFriend(friendData);
+
+    if (apiError) {
+      setError(apiError);
+      setIsLoading(false);
+      return;
+    }
+
+    onFriendCreated();
     onClose();
   };
 
@@ -154,6 +179,13 @@ function AddFriendForm({ onClose }: { onClose: () => void }) {
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
+        {/* Error */}
+        {error && (
+          <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
         {/* Preview */}
         <div className="flex items-center justify-center py-2">
           <SmartAvatar
@@ -353,11 +385,15 @@ function AddFriendForm({ onClose }: { onClose: () => void }) {
 
         {/* Actions */}
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" className="flex-1" onClick={onClose}>
+          <Button variant="outline" className="flex-1" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button className="flex-1" disabled={!isValid} onClick={handleSubmit}>
-            Add Friend
+          <Button className="flex-1" disabled={!isValid || isLoading} onClick={handleSubmit}>
+            {isLoading ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+            ) : (
+              "Add Friend"
+            )}
           </Button>
         </div>
       </CardContent>
@@ -365,20 +401,17 @@ function AddFriendForm({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function FriendsList({ onAddDebt, onSelectFriend }: FriendsListProps) {
+export function FriendsList({ friends, onAddDebt, onSelectFriend, onFriendCreated }: FriendsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
 
   // Filter friends based on search query
-  const filteredFriends = mockFriends.filter((friend) =>
+  const filteredFriends = friends.filter((friend) =>
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate total balance across all friends
-  const totalBalance = mockFriends.reduce(
-    (sum, friend) => sum + calculateBalance(friend.id, mockDebts),
-    0
-  );
+  const totalBalance = friends.reduce((sum, friend) => sum + friend.balance, 0);
 
   return (
     <div className="flex flex-col gap-6">
@@ -422,17 +455,33 @@ export function FriendsList({ onAddDebt, onSelectFriend }: FriendsListProps) {
       </div>
 
       {/* Add Friend Form */}
-      {showAddForm && <AddFriendForm onClose={() => setShowAddForm(false)} />}
+      {showAddForm && (
+        <AddFriendForm 
+          onClose={() => setShowAddForm(false)} 
+          onFriendCreated={onFriendCreated}
+        />
+      )}
 
       {/* Friends List */}
       <div className="flex flex-col gap-3">
         {filteredFriends.length === 0 ? (
           <Card className="border-dashed p-8">
             <div className="flex flex-col items-center gap-2 text-center">
-              <Search className="h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                No friends found matching &quot;{searchQuery}&quot;
-              </p>
+              {searchQuery ? (
+                <>
+                  <Search className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    No friends found matching &quot;{searchQuery}&quot;
+                  </p>
+                </>
+              ) : (
+                <>
+                  <User className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    No friends yet. Add your first friend!
+                  </p>
+                </>
+              )}
             </div>
           </Card>
         ) : (
@@ -440,7 +489,6 @@ export function FriendsList({ onAddDebt, onSelectFriend }: FriendsListProps) {
             <FriendCard
               key={friend.id}
               friend={friend}
-              balance={calculateBalance(friend.id, mockDebts)}
               onAddDebt={onAddDebt}
               onSelect={onSelectFriend}
             />

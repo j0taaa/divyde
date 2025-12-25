@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { FriendsList } from "@/components/FriendsList";
 import { FriendDetail } from "@/components/FriendDetail";
 import { AddDebt } from "@/components/AddDebt";
 import { History } from "@/components/History";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, History as HistoryIcon, UserCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { api, Friend, Debt } from "@/lib/api";
+import { Plus, Users, History as HistoryIcon, UserCircle, LogOut } from "lucide-react";
 
 type Screen = "friends" | "friend-detail" | "add-debt" | "history";
 
@@ -15,6 +17,53 @@ export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("friends");
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [previousScreen, setPreviousScreen] = useState<Screen>("friends");
+  
+  // Data state
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [totals, setTotals] = useState({ totalOwed: 0, totalOwing: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const { user, isLoading: authLoading, isAuthenticated, logout } = useAuth();
+  const router = useRouter();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  // Fetch data
+  const fetchData = useCallback(async () => {
+    if (!isAuthenticated) return;
+    
+    setIsLoading(true);
+    try {
+      const [friendsRes, debtsRes] = await Promise.all([
+        api.getFriends(),
+        api.getDebts(),
+      ]);
+
+      if (friendsRes.data) {
+        setFriends(friendsRes.data.friends);
+      }
+      if (debtsRes.data) {
+        setDebts(debtsRes.data.debts);
+        setTotals(debtsRes.data.totals);
+      }
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, fetchData]);
 
   const handleAddDebt = (friendId?: string) => {
     setPreviousScreen(currentScreen);
@@ -45,13 +94,37 @@ export default function Home() {
     }
   };
 
-  const handleMarkPaid = (debtId: string) => {
-    // This would normally update the debt - for now just log it
-    console.log("Marking debt as paid:", debtId);
-    // In a real app, we'd update the state here
+  const handleMarkPaid = async (debtId: string) => {
+    const { error } = await api.updateDebt(debtId, { isPaid: true });
+    if (!error) {
+      // Refresh data
+      await fetchData();
+    }
+  };
+
+  const handleDebtCreated = async () => {
+    await fetchData();
+    handleBack();
+  };
+
+  const handleFriendCreated = async () => {
+    await fetchData();
   };
 
   const showBottomNav = currentScreen === "friends" || currentScreen === "history";
+
+  // Loading state
+  if (authLoading || (isAuthenticated && isLoading && friends.length === 0)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -66,10 +139,8 @@ export default function Home() {
                 Add Debt
               </Button>
             )}
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/login">
-                <UserCircle className="h-5 w-5" />
-              </Link>
+            <Button variant="ghost" size="icon" onClick={logout} title="Logout">
+              <LogOut className="h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -80,12 +151,16 @@ export default function Home() {
         <div className="mx-auto max-w-lg px-4 py-6">
           {currentScreen === "friends" && (
             <FriendsList
+              friends={friends}
               onAddDebt={handleAddDebt}
               onSelectFriend={handleSelectFriend}
+              onFriendCreated={handleFriendCreated}
             />
           )}
           {currentScreen === "history" && (
             <History
+              debts={debts}
+              totals={totals}
               onMarkPaid={handleMarkPaid}
               onSelectFriend={handleSelectFriend}
             />
@@ -99,7 +174,12 @@ export default function Home() {
             />
           )}
           {currentScreen === "add-debt" && (
-            <AddDebt selectedFriendId={selectedFriendId} onBack={handleBack} />
+            <AddDebt 
+              friends={friends}
+              selectedFriendId={selectedFriendId} 
+              onBack={handleBack}
+              onDebtCreated={handleDebtCreated}
+            />
           )}
         </div>
       </main>
@@ -130,13 +210,13 @@ export default function Home() {
               <HistoryIcon className="h-5 w-5" />
               <span className="text-xs font-medium">History</span>
             </button>
-            <Link
-              href="/login"
+            <button
+              onClick={() => router.push("/profile")}
               className="flex flex-col items-center gap-1 px-6 py-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <UserCircle className="h-5 w-5" />
-              <span className="text-xs font-medium">Account</span>
-            </Link>
+              <span className="text-xs font-medium">{user?.name?.split(' ')[0] || 'Account'}</span>
+            </button>
           </div>
         </nav>
       )}

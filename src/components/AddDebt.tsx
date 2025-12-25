@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SmartAvatar } from "@/components/SmartAvatar";
-import { mockFriends } from "@/lib/mockData";
+import { api, Friend } from "@/lib/api";
 import { ArrowLeft, Check, DollarSign, Search, Users, X } from "lucide-react";
 
 interface AddDebtProps {
+  friends: Friend[];
   selectedFriendId?: string | null;
   onBack: () => void;
+  onDebtCreated: () => void;
 }
 
-export function AddDebt({ selectedFriendId, onBack }: AddDebtProps) {
+export function AddDebt({ friends, selectedFriendId, onBack, onDebtCreated }: AddDebtProps) {
   const [amount, setAmount] = useState("");
   const [direction, setDirection] = useState<"they-owe" | "you-owe">("they-owe");
   const [selectedFriends, setSelectedFriends] = useState<string[]>(
@@ -21,9 +23,11 @@ export function AddDebt({ selectedFriendId, onBack }: AddDebtProps) {
   );
   const [description, setDescription] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Filter friends based on search query
-  const filteredFriends = mockFriends.filter((friend) =>
+  const filteredFriends = friends.filter((friend) =>
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -35,15 +39,24 @@ export function AddDebt({ selectedFriendId, onBack }: AddDebtProps) {
     );
   };
 
-  const handleSubmit = () => {
-    // This would normally save the debt - for now just log it
-    console.log({
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setError("");
+
+    const { error: apiError } = await api.createDebt({
       amount: parseFloat(amount),
       direction,
-      selectedFriends,
-      description,
+      description: description || undefined,
+      friendIds: selectedFriends,
     });
-    onBack();
+
+    if (apiError) {
+      setError(apiError);
+      setIsLoading(false);
+      return;
+    }
+
+    onDebtCreated();
   };
 
   const isValid = amount && parseFloat(amount) > 0 && selectedFriends.length > 0;
@@ -57,6 +70,13 @@ export function AddDebt({ selectedFriendId, onBack }: AddDebtProps) {
         </Button>
         <h1 className="text-2xl font-bold">Add Debt</h1>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          {error}
+        </div>
+      )}
 
       {/* Amount Input */}
       <Card>
@@ -148,7 +168,9 @@ export function AddDebt({ selectedFriendId, onBack }: AddDebtProps) {
               <div className="flex flex-col items-center gap-2 py-6 text-center">
                 <Search className="h-6 w-6 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
-                  No friends found matching &quot;{searchQuery}&quot;
+                  {friends.length === 0
+                    ? "No friends yet. Add a friend first!"
+                    : `No friends found matching "${searchQuery}"`}
                 </p>
               </div>
             ) : (
@@ -211,25 +233,35 @@ export function AddDebt({ selectedFriendId, onBack }: AddDebtProps) {
                 <>
                   <span className="font-medium text-foreground">
                     {selectedFriends
-                      .map((id) => mockFriends.find((f) => f.id === id)?.name)
+                      .map((id) => friends.find((f) => f.id === id)?.name)
                       .join(", ")}
                   </span>{" "}
                   will owe you{" "}
                   <span className="font-semibold text-green-600 dark:text-green-400">
                     ${parseFloat(amount).toFixed(2)}
                   </span>
+                  {selectedFriends.length > 1 && (
+                    <span className="block text-xs mt-1">
+                      (${(parseFloat(amount) / selectedFriends.length).toFixed(2)} each)
+                    </span>
+                  )}
                 </>
               ) : (
                 <>
                   You will owe{" "}
                   <span className="font-medium text-foreground">
                     {selectedFriends
-                      .map((id) => mockFriends.find((f) => f.id === id)?.name)
+                      .map((id) => friends.find((f) => f.id === id)?.name)
                       .join(", ")}
                   </span>{" "}
                   <span className="font-semibold text-red-600 dark:text-red-400">
                     ${parseFloat(amount).toFixed(2)}
                   </span>
+                  {selectedFriends.length > 1 && (
+                    <span className="block text-xs mt-1">
+                      (${(parseFloat(amount) / selectedFriends.length).toFixed(2)} each)
+                    </span>
+                  )}
                 </>
               )}
             </p>
@@ -241,10 +273,14 @@ export function AddDebt({ selectedFriendId, onBack }: AddDebtProps) {
       <Button
         size="lg"
         className="w-full"
-        disabled={!isValid}
+        disabled={!isValid || isLoading}
         onClick={handleSubmit}
       >
-        Add Debt
+        {isLoading ? (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+        ) : (
+          "Add Debt"
+        )}
       </Button>
     </div>
   );
