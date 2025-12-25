@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, LogOut, Mail, User, Calendar } from "lucide-react";
+import { ArrowLeft, LogOut, Mail, User } from "lucide-react";
 
 export default function ProfilePage() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -93,23 +93,6 @@ export default function ProfilePage() {
                   <span className="font-medium">{user.email}</span>
                 </div>
               </div>
-              {user.createdAt && (
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">Member since</span>
-                    <span className="font-medium">
-                      {new Date(user.createdAt).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
