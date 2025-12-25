@@ -14,15 +14,15 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm ci
 
-# Generate Prisma client
-RUN npx prisma generate
-
 # Development image
 FROM base AS dev
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Generate Prisma client (needs src/ folder to exist)
+RUN npx prisma generate
 
 ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -36,6 +36,9 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Generate Prisma client (output goes to src/generated/prisma)
+RUN npx prisma generate
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
