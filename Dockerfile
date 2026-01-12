@@ -29,13 +29,16 @@ RUN npx prisma generate
 
 # Copy and set up entrypoint script
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Fix line endings (in case of Windows CRLF) and make executable
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Use full path for entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["npm", "run", "dev"]
 
 # Build the application
@@ -80,7 +83,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/src/generated ./src/generated
 
 # Copy and set up entrypoint script
 COPY --chown=nextjs:nodejs scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Fix line endings (in case of Windows CRLF) and make executable
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER nextjs
 
@@ -89,7 +94,8 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Use full path for entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "server.js"]
 
 
