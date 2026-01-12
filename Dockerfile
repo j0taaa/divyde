@@ -5,6 +5,27 @@ FROM node:20-alpine AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Dev image (used by docker-compose target: dev)
+FROM base AS dev
+RUN apk add --no-cache libc6-compat openssl
+
+# Install deps (including dev deps for Next tooling)
+COPY package.json package-lock.json prisma.config.ts ./
+RUN npm ci
+
+# Copy and set up entrypoint script (so Prisma db push can run on startup)
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# Fix line endings (in case of Windows CRLF) and make executable
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# App source (will be bind-mounted in compose, but included for completeness)
+COPY . .
+
+EXPOSE 3000
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0", "-p", "3000"]
+
 # Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat openssl

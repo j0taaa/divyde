@@ -15,11 +15,24 @@ fi
 
 MAX_RETRIES="${PRISMA_DB_PUSH_MAX_RETRIES:-30}"
 SLEEP_SECONDS="${PRISMA_DB_PUSH_RETRY_DELAY_SECONDS:-2}"
+DB_PUSH_FLAGS="${PRISMA_DB_PUSH_FLAGS:-}"
 
-echo "Running 'prisma db push --skip-generate' (up to ${MAX_RETRIES} retries)..."
+# Some Prisma versions/docs mention flags that are NOT valid for `prisma db push`
+# (e.g. `--skip-generate`). If those leak into PRISMA_DB_PUSH_FLAGS, Prisma will
+# exit immediately and the app will never start (often surfacing as Traefik 502s).
+case " ${DB_PUSH_FLAGS} " in
+  *" --skip-generate "*)
+    echo "WARNING: PRISMA_DB_PUSH_FLAGS contains '--skip-generate', which is not supported by 'prisma db push'. Ignoring it."
+    ;;
+esac
+# Strip unsupported flags (keep it POSIX-sh compatible)
+DB_PUSH_FLAGS="$(printf '%s' "$DB_PUSH_FLAGS" | sed -E 's/(^|[[:space:]])--skip-generate([[:space:]]|$)/ /g; s/[[:space:]]+/ /g; s/^ //; s/ $//')"
+
+echo "Running 'prisma db push ${DB_PUSH_FLAGS}' (up to ${MAX_RETRIES} retries)..."
 i=1
 while [ "$i" -le "$MAX_RETRIES" ]; do
-  if npx prisma db push --skip-generate; then
+  # shellcheck disable=SC2086
+  if npx prisma db push ${DB_PUSH_FLAGS}; then
     echo "Prisma db push succeeded."
     break
   fi
