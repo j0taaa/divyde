@@ -29,8 +29,7 @@ echo "✅ Database is ready!"
 
 # Run Prisma db push to ensure schema is in sync
 echo "🔄 Syncing database schema..."
-# Use node directly since node_modules/.bin may not be available in production image
-node ./node_modules/prisma/build/index.js db push --skip-generate
+npx prisma db push --skip-generate
 
 echo "✅ Database schema is in sync!"
 

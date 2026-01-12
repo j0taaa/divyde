@@ -56,6 +56,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
+# Prisma CLI installer - installs prisma with all dependencies
+FROM base AS prisma-installer
+WORKDIR /app
+RUN npm install prisma@7.2.0
+
 # Production image
 FROM base AS runner
 WORKDIR /app
@@ -77,22 +82,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy Prisma schema for db push
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-# Copy Prisma CLI and all its dependencies for db push command
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@electric-sql ./node_modules/@electric-sql
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@hono ./node_modules/@hono
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@mrleebo ./node_modules/@mrleebo
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/valibot ./node_modules/valibot
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pathe ./node_modules/pathe
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/hono ./node_modules/hono
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/foreground-child ./node_modules/foreground-child
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/get-port-please ./node_modules/get-port-please
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/http-status-codes ./node_modules/http-status-codes
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/proper-lockfile ./node_modules/proper-lockfile
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/remeda ./node_modules/remeda
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/std-env ./node_modules/std-env
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/zeptomatch ./node_modules/zeptomatch
+# Copy Prisma CLI with all dependencies from the installer stage
+COPY --from=prisma-installer --chown=nextjs:nodejs /app/node_modules ./node_modules
 # Copy generated Prisma client (output is in src/generated/prisma)
 COPY --from=builder --chown=nextjs:nodejs /app/src/generated ./src/generated
 # Copy prisma config file
