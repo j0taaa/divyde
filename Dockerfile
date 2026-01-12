@@ -77,9 +77,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy Prisma schema for db push
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-# Copy Prisma CLI for db push command
+# Copy Prisma CLI and all its dependencies for db push command
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/valibot ./node_modules/valibot
 # Copy generated Prisma client (output is in src/generated/prisma)
 COPY --from=builder --chown=nextjs:nodejs /app/src/generated ./src/generated
 # Copy prisma config file
