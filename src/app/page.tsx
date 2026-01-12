@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FriendsList } from "@/components/FriendsList";
 import { FriendDetail } from "@/components/FriendDetail";
 import { AddDebt } from "@/components/AddDebt";
@@ -26,6 +26,8 @@ export default function Home() {
   
   const { user, isLoading: authLoading, isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const hasSyncedFromUrl = useRef(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -33,6 +35,16 @@ export default function Home() {
       router.push("/login");
     }
   }, [authLoading, isAuthenticated, router]);
+
+  // Initialize friends/history screen from URL (e.g. /?screen=history)
+  useEffect(() => {
+    if (hasSyncedFromUrl.current) return;
+    const screen = searchParams.get("screen");
+    if (screen === "history") {
+      setCurrentScreen("history");
+    }
+    hasSyncedFromUrl.current = true;
+  }, [searchParams]);
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -189,7 +201,10 @@ export default function Home() {
         <nav className="sticky bottom-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
           <div className="mx-auto flex max-w-lg items-center justify-around py-2">
             <button
-              onClick={() => setCurrentScreen("friends")}
+              onClick={() => {
+                setCurrentScreen("friends");
+                router.replace("/");
+              }}
               className={`flex flex-col items-center gap-1 px-6 py-2 transition-colors ${
                 currentScreen === "friends"
                   ? "text-primary"
@@ -200,7 +215,10 @@ export default function Home() {
               <span className="text-xs font-medium">Friends</span>
             </button>
             <button
-              onClick={() => setCurrentScreen("history")}
+              onClick={() => {
+                setCurrentScreen("history");
+                router.replace("/?screen=history");
+              }}
               className={`flex flex-col items-center gap-1 px-6 py-2 transition-colors ${
                 currentScreen === "history"
                   ? "text-primary"

@@ -2,11 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, LogOut, Mail, User } from "lucide-react";
+import { LogOut, Mail, User, Users, History as HistoryIcon, UserCircle } from "lucide-react";
 
 export default function ProfilePage() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -39,13 +38,11 @@ export default function ProfilePage() {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="mx-auto flex h-14 max-w-lg items-center gap-4 px-4">
-          <Link href="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <h1 className="text-xl font-bold tracking-tight">Profile</h1>
+        <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
+          <h1 className="text-xl font-bold tracking-tight">Divyde</h1>
+          <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+            <LogOut className="h-5 w-5" />
+          </Button>
         </div>
       </header>
 
@@ -108,6 +105,34 @@ export default function ProfilePage() {
           </Button>
         </div>
       </main>
+
+      {/* Bottom Navigation */}
+      <nav className="sticky bottom-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <div className="mx-auto flex max-w-lg items-center justify-around py-2">
+          <button
+            onClick={() => router.push("/")}
+            className="flex flex-col items-center gap-1 px-6 py-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Users className="h-5 w-5" />
+            <span className="text-xs font-medium">Friends</span>
+          </button>
+          <button
+            onClick={() => router.push("/?screen=history")}
+            className="flex flex-col items-center gap-1 px-6 py-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <HistoryIcon className="h-5 w-5" />
+            <span className="text-xs font-medium">History</span>
+          </button>
+          <button
+            onClick={() => {}}
+            className="flex flex-col items-center gap-1 px-6 py-2 transition-colors text-primary"
+            aria-current="page"
+          >
+            <UserCircle className="h-5 w-5" />
+            <span className="text-xs font-medium">{user?.name?.split(" ")[0] || "Account"}</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }
