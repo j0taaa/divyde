@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# Cache bust: 2026-01-12 - Fixed Prisma client location
 
 FROM node:20-alpine AS base
 
@@ -74,12 +75,15 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy Prisma schema and generated client for db push
+# Copy Prisma schema for db push
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+# Copy Prisma CLI for db push command
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+# Copy generated Prisma client (output is in src/generated/prisma)
 COPY --from=builder --chown=nextjs:nodejs /app/src/generated ./src/generated
+# Copy prisma config file
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 
 # Copy and set up entrypoint script
 COPY --chown=nextjs:nodejs scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
