@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FriendsList } from "@/components/FriendsList";
 import { FriendDetail } from "@/components/FriendDetail";
@@ -12,6 +12,23 @@ import { api, Friend, Debt } from "@/lib/api";
 import { Plus, Users, History as HistoryIcon, UserCircle, LogOut } from "lucide-react";
 
 type Screen = "friends" | "friend-detail" | "add-debt" | "history";
+
+function ScreenFromUrlSync({
+  onScreen,
+}: {
+  onScreen: (screen: Screen) => void;
+}) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const screen = searchParams.get("screen");
+    if (screen === "history") {
+      onScreen("history");
+    }
+  }, [searchParams, onScreen]);
+
+  return null;
+}
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("friends");
@@ -26,8 +43,6 @@ export default function Home() {
   
   const { user, isLoading: authLoading, isAuthenticated, logout } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const hasSyncedFromUrl = useRef(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -35,16 +50,6 @@ export default function Home() {
       router.push("/login");
     }
   }, [authLoading, isAuthenticated, router]);
-
-  // Initialize friends/history screen from URL (e.g. /?screen=history)
-  useEffect(() => {
-    if (hasSyncedFromUrl.current) return;
-    const screen = searchParams.get("screen");
-    if (screen === "history") {
-      setCurrentScreen("history");
-    }
-    hasSyncedFromUrl.current = true;
-  }, [searchParams]);
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -140,6 +145,11 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      {/* Needed for Next.js prerendering: isolate useSearchParams behind Suspense */}
+      <Suspense fallback={null}>
+        <ScreenFromUrlSync onScreen={setCurrentScreen} />
+      </Suspense>
+
       {/* Header */}
       <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
