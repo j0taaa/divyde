@@ -11,7 +11,7 @@ RUN apk add --no-cache libc6-compat openssl
 
 # Install deps (including dev deps for Next tooling)
 COPY package.json package-lock.json prisma.config.ts ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Copy and set up entrypoint script (so Prisma db push can run on startup)
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
@@ -32,7 +32,7 @@ RUN apk add --no-cache libc6-compat openssl
 
 # Copy package files and install deps (includes dev deps for build tooling)
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Build the application
 FROM base AS builder
@@ -57,7 +57,7 @@ RUN adduser --system --uid 1001 nextjs
 
 # Install production dependencies (Prisma CLI is in dependencies)
 COPY --chown=nextjs:nodejs package.json package-lock.json prisma.config.ts ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
