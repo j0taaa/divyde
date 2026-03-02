@@ -61,7 +61,7 @@ export async function setSessionCookie(token: string): Promise<void> {
 // Get the current session from cookies
 export async function getSession(): Promise<{
   userId: string;
-  user: { id: string; email: string; name: string };
+  user: { id: string; email: string; name: string; avatarIcon: string | null };
 } | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -78,6 +78,7 @@ export async function getSession(): Promise<{
           id: true,
           email: true,
           name: true,
+          avatarIcon: true,
         },
       },
     },
@@ -112,7 +113,7 @@ export async function deleteSession(): Promise<void> {
 // Require authentication - returns user or throws
 export async function requireAuth(): Promise<{
   userId: string;
-  user: { id: string; email: string; name: string };
+  user: { id: string; email: string; name: string; avatarIcon: string | null };
 }> {
   const session = await getSession();
   if (!session) {
@@ -120,4 +121,3 @@ export async function requireAuth(): Promise<{
   }
   return session;
 }
-

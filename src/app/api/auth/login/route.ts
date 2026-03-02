@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
         id: user.id,
         name: user.name,
         email: user.email,
+        avatarIcon: user.avatarIcon,
       },
     });
   } catch (error) {
