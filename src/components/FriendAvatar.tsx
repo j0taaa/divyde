@@ -1,6 +1,20 @@
 "use client";
 
-export type HairStyle = "short" | "long" | "curly" | "bald" | "mohawk" | "ponytail";
+export type HairStyle =
+  | "short"
+  | "long"
+  | "curly"
+  | "bald"
+  | "mohawk"
+  | "ponytail"
+  | "buzzcut"
+  | "afro"
+  | "bob"
+  | "braids"
+  | "spiky"
+  | "waves"
+  | "spaceBuns"
+  | "sidePart";
 
 export interface FriendAvatarProps {
   hairColor?: string;
@@ -40,20 +54,8 @@ export function FriendAvatar({
       {/* Background */}
       <circle cx="50" cy="50" r="50" fill={backgroundColor} />
 
-      {/* Long hair behind (render first so it's behind everything) */}
-      {hairStyle === "long" && (
-        <g>
-          {/* Hair behind shoulders */}
-          <path
-            d="M20 50 Q18 70 22 95 L35 95 Q30 75 32 55"
-            fill={hairColor}
-          />
-          <path
-            d="M80 50 Q82 70 78 95 L65 95 Q70 75 68 55"
-            fill={hairColor}
-          />
-        </g>
-      )}
+      {/* Hair rendered behind shoulders/head for longer styles */}
+      <BackHairComponent style={hairStyle} color={hairColor} />
 
       {/* Neck */}
       <path
@@ -223,14 +225,113 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
             d="M28 45 Q28 25 50 22 Q72 25 72 45 Q65 35 50 33 Q35 35 28 45"
             fill={color}
           />
-          {/* Ponytail */}
-          <ellipse cx="50" cy="18" rx="8" ry="5" fill={color} />
-          <path
-            d="M46 15 Q42 5 48 0 Q52 5 58 0 Q54 5 54 15"
-            fill={color}
-          />
+          {/* Front fringe */}
+          <path d="M34 33 Q42 28 50 30 Q58 28 66 33 Q56 36 50 36 Q44 36 34 33" fill={color} />
           {/* Hair tie */}
-          <ellipse cx="50" cy="16" rx="6" ry="2" fill={adjustColor(color, -30)} />
+          <ellipse cx="50" cy="21" rx="4" ry="2" fill={adjustColor(color, -30)} />
+        </g>
+      );
+
+    case "buzzcut":
+      return (
+        <g>
+          <path d="M27 45 Q27 25 50 22 Q73 25 73 45 Q65 37 50 35 Q35 37 27 45" fill={adjustColor(color, 10)} />
+          <path d="M32 35 Q40 30 50 30 Q60 30 68 35" stroke={adjustColor(color, -10)} strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+      );
+
+    case "afro":
+      return (
+        <g>
+          <circle cx="50" cy="28" r="20" fill={color} />
+          <circle cx="33" cy="32" r="9" fill={color} />
+          <circle cx="67" cy="32" r="9" fill={color} />
+          <path d="M26 43 Q35 37 50 37 Q65 37 74 43 Q66 41 50 41 Q34 41 26 43" fill={color} />
+        </g>
+      );
+
+    case "bob":
+      return (
+        <g>
+          <path d="M24 46 Q24 24 50 21 Q76 24 76 46 Q73 42 50 40 Q27 42 24 46" fill={color} />
+          <path d="M25 45 Q22 56 25 71 Q28 74 34 73 Q30 62 31 48" fill={color} />
+          <path d="M75 45 Q78 56 75 71 Q72 74 66 73 Q70 62 69 48" fill={color} />
+        </g>
+      );
+
+    case "braids":
+      return (
+        <g>
+          <path d="M26 45 Q26 24 50 21 Q74 24 74 45 Q67 36 50 35 Q33 36 26 45" fill={color} />
+          <path d="M28 46 L24 53 L28 60 L24 67 L28 74" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <path d="M72 46 L76 53 L72 60 L76 67 L72 74" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          <circle cx="28" cy="76" r="2" fill={adjustColor(color, -35)} />
+          <circle cx="72" cy="76" r="2" fill={adjustColor(color, -35)} />
+        </g>
+      );
+
+    case "spiky":
+      return (
+        <g>
+          <path d="M24 44 L30 30 L38 36 L44 20 L50 33 L56 18 L62 35 L70 28 L76 44 Q66 38 50 38 Q34 38 24 44" fill={color} />
+        </g>
+      );
+
+    case "waves":
+      return (
+        <g>
+          <path d="M26 45 Q26 24 50 21 Q74 24 74 45 Q68 39 58 37 Q52 39 46 37 Q36 39 26 45" fill={color} />
+          <path d="M33 32 Q39 28 45 32 Q51 36 57 32 Q63 28 68 32" stroke={adjustColor(color, -20)} strokeWidth="2" strokeLinecap="round" fill="none" />
+        </g>
+      );
+
+    case "spaceBuns":
+      return (
+        <g>
+          <circle cx="32" cy="24" r="8" fill={color} />
+          <circle cx="68" cy="24" r="8" fill={color} />
+          <path d="M28 45 Q28 26 50 23 Q72 26 72 45 Q65 37 50 35 Q35 37 28 45" fill={color} />
+        </g>
+      );
+
+    case "sidePart":
+      return (
+        <g>
+          <path d="M25 45 Q25 23 50 20 Q74 23 74 45 Q64 34 52 33 Q38 34 25 45" fill={color} />
+          <path d="M41 24 Q45 35 43 44" stroke={adjustColor(color, -25)} strokeWidth="2" strokeLinecap="round" />
+          <path d="M44 33 Q56 26 68 32" stroke={adjustColor(color, -15)} strokeWidth="2" strokeLinecap="round" fill="none" />
+        </g>
+      );
+
+    default:
+      return null;
+  }
+}
+
+function BackHairComponent({ style, color }: { style: HairStyle; color: string }) {
+  switch (style) {
+    case "long":
+    case "braids":
+      return (
+        <g>
+          <path d="M20 50 Q18 70 22 95 L35 95 Q30 75 32 55" fill={color} />
+          <path d="M80 50 Q82 70 78 95 L65 95 Q70 75 68 55" fill={color} />
+        </g>
+      );
+
+    case "ponytail":
+      return (
+        <g>
+          <ellipse cx="50" cy="23" rx="9" ry="6" fill={color} />
+          <path d="M47 20 Q40 8 48 2 Q52 8 57 2 Q60 8 53 20" fill={color} />
+        </g>
+      );
+
+    case "bob":
+      return (
+        <g>
+          <path d="M27 56 Q24 76 30 95 L39 95 Q36 80 37 60" fill={color} />
+          <path d="M73 56 Q76 76 70 95 L61 95 Q64 80 63 60" fill={color} />
         </g>
       );
 

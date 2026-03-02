@@ -26,6 +26,14 @@ const hairStyles: { value: HairStyle; label: string }[] = [
   { value: "bald", label: "Bald" },
   { value: "mohawk", label: "Mohawk" },
   { value: "ponytail", label: "Ponytail" },
+  { value: "buzzcut", label: "Buzz Cut" },
+  { value: "afro", label: "Afro" },
+  { value: "bob", label: "Bob" },
+  { value: "braids", label: "Braids" },
+  { value: "spiky", label: "Spiky" },
+  { value: "waves", label: "Waves" },
+  { value: "spaceBuns", label: "Space Buns" },
+  { value: "sidePart", label: "Side Part" },
 ];
 
 function formatDate(dateString: string): string {
