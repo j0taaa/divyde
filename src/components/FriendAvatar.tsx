@@ -136,12 +136,15 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
       return (
         <g>
           <path
-            d="M25 45 Q25 20 50 18 Q75 20 75 45 Q70 35 50 33 Q30 35 25 45"
+            d="M24 45 Q24 22 50 17 Q76 22 76 45 Q68 37 50 35 Q32 37 24 45"
             fill={color}
           />
           <path
-            d="M30 38 Q35 32 50 30 Q65 32 70 38"
-            fill={color}
+            d="M33 34 Q42 28 50 29 Q58 28 67 34"
+            stroke={adjustColor(color, -18)}
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
           />
         </g>
       );
@@ -151,17 +154,17 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
         <g>
           {/* Top of hair */}
           <path
-            d="M25 45 Q25 20 50 18 Q75 20 75 45 Q70 35 50 33 Q30 35 25 45"
+            d="M24 45 Q24 21 50 17 Q76 21 76 45 Q68 36 50 34 Q32 36 24 45"
             fill={color}
           />
           {/* Left side hair covering ear */}
           <path
-            d="M25 45 Q22 50 22 60 Q22 70 25 75 L30 75 Q28 65 28 55 Q28 48 30 42 Z"
+            d="M25 45 Q21 53 21 64 Q21 74 26 80 L34 80 Q30 66 31 52 Q31 46 33 40 Z"
             fill={color}
           />
           {/* Right side hair covering ear */}
           <path
-            d="M75 45 Q78 50 78 60 Q78 70 75 75 L70 75 Q72 65 72 55 Q72 48 70 42 Z"
+            d="M75 45 Q79 53 79 64 Q79 74 74 80 L66 80 Q70 66 69 52 Q69 46 67 40 Z"
             fill={color}
           />
         </g>
@@ -171,16 +174,16 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
       return (
         <g>
           {/* Main curly hair mass */}
-          <circle cx="35" cy="28" r="10" fill={color} />
-          <circle cx="50" cy="22" r="10" fill={color} />
-          <circle cx="65" cy="28" r="10" fill={color} />
-          <circle cx="28" cy="38" r="8" fill={color} />
-          <circle cx="72" cy="38" r="8" fill={color} />
-          <circle cx="42" cy="26" r="8" fill={color} />
-          <circle cx="58" cy="26" r="8" fill={color} />
+          <circle cx="34" cy="29" r="9" fill={color} />
+          <circle cx="50" cy="22" r="11" fill={color} />
+          <circle cx="66" cy="29" r="9" fill={color} />
+          <circle cx="27" cy="39" r="8" fill={color} />
+          <circle cx="73" cy="39" r="8" fill={color} />
+          <circle cx="43" cy="28" r="8" fill={color} />
+          <circle cx="57" cy="28" r="8" fill={color} />
           {/* Fill gaps */}
           <path
-            d="M28 35 Q30 25 50 22 Q70 25 72 35 Q65 30 50 28 Q35 30 28 35"
+            d="M26 37 Q28 26 50 23 Q72 26 74 37 Q66 31 50 30 Q34 31 26 37"
             fill={color}
           />
         </g>
@@ -198,19 +201,10 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
       return (
         <g>
           {/* Base strip on head */}
-          <path
-            d="M42 32 Q50 28 58 32 L58 22 Q50 18 42 22 Z"
-            fill={color}
-          />
+          <path d="M43 36 Q50 33 57 36 L57 27 Q50 24 43 27 Z" fill={color} />
           {/* Mohawk spikes standing up */}
-          <path
-            d="M44 22 L50 5 L56 22 Q50 18 44 22"
-            fill={color}
-          />
-          <path
-            d="M46 20 L50 8 L54 20"
-            fill={color}
-          />
+          <path d="M44 27 L50 6 L56 27 Q50 21 44 27" fill={color} />
+          <path d="M46 24 L50 11 L54 24" stroke={adjustColor(color, -16)} strokeWidth="1.5" fill="none" />
           {/* Shaved sides hint */}
           <ellipse cx="32" cy="35" rx="4" ry="6" fill={adjustColor(skinColor, -10)} opacity="0.3" />
           <ellipse cx="68" cy="35" rx="4" ry="6" fill={adjustColor(skinColor, -10)} opacity="0.3" />
@@ -221,14 +215,11 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
       return (
         <g>
           {/* Top hair */}
-          <path
-            d="M28 45 Q28 25 50 22 Q72 25 72 45 Q65 35 50 33 Q35 35 28 45"
-            fill={color}
-          />
+          <path d="M27 45 Q27 24 50 20 Q73 24 73 45 Q65 37 50 35 Q35 37 27 45" fill={color} />
           {/* Front fringe */}
-          <path d="M34 33 Q42 28 50 30 Q58 28 66 33 Q56 36 50 36 Q44 36 34 33" fill={color} />
+          <path d="M33 34 Q40 28 49 29 Q58 29 67 34 Q56 37 49 37 Q42 37 33 34" fill={adjustColor(color, -8)} />
           {/* Hair tie */}
-          <ellipse cx="50" cy="21" rx="4" ry="2" fill={adjustColor(color, -30)} />
+          <ellipse cx="50" cy="21" rx="4.5" ry="2.4" fill={adjustColor(color, -30)} />
         </g>
       );
 
@@ -253,35 +244,37 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
     case "bob":
       return (
         <g>
-          <path d="M24 46 Q24 24 50 21 Q76 24 76 46 Q73 42 50 40 Q27 42 24 46" fill={color} />
-          <path d="M25 45 Q22 56 25 71 Q28 74 34 73 Q30 62 31 48" fill={color} />
-          <path d="M75 45 Q78 56 75 71 Q72 74 66 73 Q70 62 69 48" fill={color} />
+          <path d="M24 46 Q24 22 50 19 Q76 22 76 46 Q70 39 50 38 Q30 39 24 46" fill={color} />
+          <path d="M25 45 Q22 56 24 73 Q27 77 35 76 Q30 63 31 49" fill={color} />
+          <path d="M75 45 Q78 56 76 73 Q73 77 65 76 Q70 63 69 49" fill={color} />
         </g>
       );
 
     case "braids":
       return (
         <g>
-          <path d="M26 45 Q26 24 50 21 Q74 24 74 45 Q67 36 50 35 Q33 36 26 45" fill={color} />
-          <path d="M28 46 L24 53 L28 60 L24 67 L28 74" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          <path d="M72 46 L76 53 L72 60 L76 67 L72 74" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          <circle cx="28" cy="76" r="2" fill={adjustColor(color, -35)} />
-          <circle cx="72" cy="76" r="2" fill={adjustColor(color, -35)} />
+          <path d="M26 45 Q26 23 50 20 Q74 23 74 45 Q67 37 50 35 Q33 37 26 45" fill={color} />
+          <path d="M28 47 C23 54 24 61 28 67 C24 73 24 79 29 84" stroke={color} strokeWidth="5" strokeLinecap="round" fill="none" />
+          <path d="M72 47 C77 54 76 61 72 67 C76 73 76 79 71 84" stroke={color} strokeWidth="5" strokeLinecap="round" fill="none" />
+          <circle cx="29" cy="86" r="2.2" fill={adjustColor(color, -35)} />
+          <circle cx="71" cy="86" r="2.2" fill={adjustColor(color, -35)} />
         </g>
       );
 
     case "spiky":
       return (
         <g>
-          <path d="M24 44 L30 30 L38 36 L44 20 L50 33 L56 18 L62 35 L70 28 L76 44 Q66 38 50 38 Q34 38 24 44" fill={color} />
+          <path d="M24 44 L30 31 L38 37 L44 21 L50 34 L56 19 L62 36 L70 29 L76 44 Q66 38 50 38 Q34 38 24 44" fill={color} />
+          <path d="M31 37 L38 34 L44 31 L50 30 L56 31 L62 34 L69 37" stroke={adjustColor(color, -20)} strokeWidth="1.5" strokeLinecap="round" fill="none" />
         </g>
       );
 
     case "waves":
       return (
         <g>
-          <path d="M26 45 Q26 24 50 21 Q74 24 74 45 Q68 39 58 37 Q52 39 46 37 Q36 39 26 45" fill={color} />
-          <path d="M33 32 Q39 28 45 32 Q51 36 57 32 Q63 28 68 32" stroke={adjustColor(color, -20)} strokeWidth="2" strokeLinecap="round" fill="none" />
+          <path d="M26 45 Q26 23 50 20 Q74 23 74 45 Q68 39 58 37 Q52 39 46 37 Q36 39 26 45" fill={color} />
+          <path d="M32 33 Q38 29 44 32 Q50 35 56 32 Q62 29 68 33" stroke={adjustColor(color, -20)} strokeWidth="2" strokeLinecap="round" fill="none" />
+          <path d="M34 37 Q40 34 46 37 Q52 40 58 37 Q64 34 66 37" stroke={adjustColor(color, -12)} strokeWidth="1.5" strokeLinecap="round" fill="none" />
         </g>
       );
 
@@ -297,9 +290,9 @@ function HairComponent({ style, color, skinColor }: { style: HairStyle; color: s
     case "sidePart":
       return (
         <g>
-          <path d="M25 45 Q25 23 50 20 Q74 23 74 45 Q64 34 52 33 Q38 34 25 45" fill={color} />
-          <path d="M41 24 Q45 35 43 44" stroke={adjustColor(color, -25)} strokeWidth="2" strokeLinecap="round" />
-          <path d="M44 33 Q56 26 68 32" stroke={adjustColor(color, -15)} strokeWidth="2" strokeLinecap="round" fill="none" />
+          <path d="M25 45 Q25 22 50 19 Q74 22 74 45 Q64 35 52 34 Q38 35 25 45" fill={color} />
+          <path d="M40 23 Q45 32 43 44" stroke={adjustColor(color, -25)} strokeWidth="2" strokeLinecap="round" />
+          <path d="M44 34 Q54 27 68 33" stroke={adjustColor(color, -15)} strokeWidth="2" strokeLinecap="round" fill="none" />
         </g>
       );
 
@@ -314,16 +307,16 @@ function BackHairComponent({ style, color }: { style: HairStyle; color: string }
     case "braids":
       return (
         <g>
-          <path d="M20 50 Q18 70 22 95 L35 95 Q30 75 32 55" fill={color} />
-          <path d="M80 50 Q82 70 78 95 L65 95 Q70 75 68 55" fill={color} />
+          <path d="M21 51 Q18 72 24 95 L36 95 Q31 75 32 56" fill={color} />
+          <path d="M79 51 Q82 72 76 95 L64 95 Q69 75 68 56" fill={color} />
         </g>
       );
 
     case "ponytail":
       return (
         <g>
-          <ellipse cx="50" cy="23" rx="9" ry="6" fill={color} />
-          <path d="M47 20 Q40 8 48 2 Q52 8 57 2 Q60 8 53 20" fill={color} />
+          <ellipse cx="50" cy="24" rx="9" ry="6" fill={color} />
+          <path d="M47 21 Q40 10 48 4 Q52 10 57 4 Q60 10 53 21" fill={color} />
         </g>
       );
 
