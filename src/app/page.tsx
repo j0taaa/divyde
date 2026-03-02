@@ -193,6 +193,7 @@ export default function Home() {
               onBack={handleBack}
               onAddDebt={handleAddDebt}
               onMarkPaid={handleMarkPaid}
+              onFriendUpdated={fetchData}
             />
           )}
           {currentScreen === "add-debt" && (

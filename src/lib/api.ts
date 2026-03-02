@@ -123,6 +123,21 @@ class ApiClient {
     });
   }
 
+  async updateFriend(
+    id: string,
+    data: {
+      name: string;
+      avatarType?: "initials" | "custom";
+      avatarColor?: string;
+      avatar?: FriendAvatarData;
+    }
+  ) {
+    return this.fetch<{ friend: Friend }>(`/api/friends/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
   // Debts
   async getDebts(filter?: "all" | "outstanding" | "paid", friendId?: string) {
     const params = new URLSearchParams();
@@ -164,4 +179,3 @@ class ApiClient {
 }
 
 export const api = new ApiClient();
-
