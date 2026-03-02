@@ -57,7 +57,9 @@ RUN adduser --system --uid 1001 nextjs
 
 # Install production dependencies (Prisma CLI is in dependencies)
 COPY --chown=nextjs:nodejs package.json package-lock.json prisma.config.ts ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && \
+    npm cache clean --force && \
+    chown -R nextjs:nodejs /app/node_modules
 
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
