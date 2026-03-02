@@ -4,7 +4,6 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  avatarIcon?: string | null;
 }
 
 export interface FriendAvatarData {
@@ -92,13 +91,6 @@ class ApiClient {
 
   async getMe() {
     return this.fetch<{ user: User | null }>("/api/auth/me");
-  }
-
-  async updateProfile(data: { name: string; avatarIcon?: string | null }) {
-    return this.fetch<{ user: User }>("/api/auth/me", {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
   }
 
   // Friends
