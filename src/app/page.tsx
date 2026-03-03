@@ -3,7 +3,6 @@
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FriendsList } from "@/components/FriendsList";
-import { FriendDetail } from "@/components/FriendDetail";
 import { AddDebt } from "@/components/AddDebt";
 import { History } from "@/components/History";
 import { Button } from "@/components/ui/button";
@@ -14,18 +13,33 @@ import { Plus, Users, History as HistoryIcon, UserCircle, LogOut } from "lucide-
 type Screen = "friends" | "friend-detail" | "add-debt" | "history";
 
 function ScreenFromUrlSync({
-  onScreen,
+  onState,
 }: {
-  onScreen: (screen: Screen) => void;
+  onState: (state: { screen: Screen; selectedFriendId: string | null; previousScreen: Screen }) => void;
 }) {
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const screen = searchParams.get("screen");
-    if (screen === "history") {
-      onScreen("history");
+    const friendId = searchParams.get("friendId");
+    const from = searchParams.get("from");
+
+    if (screen === "add-debt") {
+      onState({
+        screen: "add-debt",
+        selectedFriendId: friendId,
+        previousScreen: from === "friend-detail" ? "friend-detail" : from === "history" ? "history" : "friends",
+      });
+      return;
     }
-  }, [searchParams, onScreen]);
+
+    if (screen === "history") {
+      onState({ screen: "history", selectedFriendId: null, previousScreen: "friends" });
+      return;
+    }
+
+    onState({ screen: "friends", selectedFriendId: null, previousScreen: "friends" });
+  }, [searchParams, onState]);
 
   return null;
 }
@@ -89,25 +103,23 @@ export default function Home() {
   };
 
   const handleSelectFriend = (friendId: string) => {
-    setPreviousScreen(currentScreen);
-    setSelectedFriendId(friendId);
-    setCurrentScreen("friend-detail");
+    const from = currentScreen === "history" ? "?from=history" : "";
+    router.push(`/friends/${friendId}${from}`);
   };
 
   const handleBack = () => {
     if (currentScreen === "add-debt") {
       if (previousScreen === "friend-detail" && selectedFriendId) {
-        setCurrentScreen("friend-detail");
+        router.push(`/friends/${selectedFriendId}`);
       } else {
         setSelectedFriendId(null);
         setCurrentScreen(previousScreen === "history" ? "history" : "friends");
+        router.replace(previousScreen === "history" ? "/?screen=history" : "/");
       }
-    } else if (currentScreen === "friend-detail") {
-      setSelectedFriendId(null);
-      setCurrentScreen(previousScreen === "history" ? "history" : "friends");
     } else {
       setSelectedFriendId(null);
       setCurrentScreen("friends");
+      router.replace("/");
     }
   };
 
@@ -147,7 +159,13 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Needed for Next.js prerendering: isolate useSearchParams behind Suspense */}
       <Suspense fallback={null}>
-        <ScreenFromUrlSync onScreen={setCurrentScreen} />
+        <ScreenFromUrlSync
+          onState={({ screen, selectedFriendId: friendIdFromUrl, previousScreen: previousScreenFromUrl }) => {
+            setCurrentScreen(screen);
+            setSelectedFriendId(friendIdFromUrl);
+            setPreviousScreen(previousScreenFromUrl);
+          }}
+        />
       </Suspense>
 
       {/* Header */}
@@ -185,15 +203,6 @@ export default function Home() {
               totals={totals}
               onMarkPaid={handleMarkPaid}
               onSelectFriend={handleSelectFriend}
-            />
-          )}
-          {currentScreen === "friend-detail" && selectedFriendId && (
-            <FriendDetail
-              friendId={selectedFriendId}
-              onBack={handleBack}
-              onAddDebt={handleAddDebt}
-              onMarkPaid={handleMarkPaid}
-              onFriendUpdated={fetchData}
             />
           )}
           {currentScreen === "add-debt" && (
