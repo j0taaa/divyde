@@ -97,9 +97,20 @@ export default function Home() {
   }, [isAuthenticated, fetchData]);
 
   const handleAddDebt = (friendId?: string) => {
-    setPreviousScreen(currentScreen);
-    setSelectedFriendId(friendId ?? null);
-    setCurrentScreen("add-debt");
+    const params = new URLSearchParams();
+    params.set("screen", "add-debt");
+
+    if (friendId) {
+      params.set("friendId", friendId);
+    }
+
+    if (currentScreen === "history") {
+      params.set("from", "history");
+    } else if (currentScreen === "friend-detail") {
+      params.set("from", "friend-detail");
+    }
+
+    router.push(`/?${params.toString()}`);
   };
 
   const handleSelectFriend = (friendId: string) => {
