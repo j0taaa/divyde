@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { FriendDetail } from "@/components/FriendDetail";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
@@ -10,6 +11,12 @@ export default function FriendPage() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(12);
+    }
+  }, []);
 
   const handleBack = () => {
     const from = searchParams.get("from");
