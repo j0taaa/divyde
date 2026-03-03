@@ -21,14 +21,14 @@ export default function FriendPage() {
   const handleBack = () => {
     const from = searchParams.get("from");
     if (from === "history") {
-      router.push("/?screen=history");
+      router.push("/history");
       return;
     }
     router.push("/");
   };
 
   const handleAddDebt = (friendId: string) => {
-    router.push(`/?screen=add-debt&friendId=${friendId}&from=friend-detail`);
+    router.push(`/add-debt?friendId=${friendId}`);
   };
 
   const handleMarkPaid = async (debtId: string) => {

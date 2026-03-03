@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { PWARegister } from "@/components/PWARegister";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { HapticsProvider } from "@/components/HapticsProvider";
+import { DashboardProvider } from "@/contexts/DashboardContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -55,7 +56,7 @@ export default function RootLayout({
         <AuthProvider>
           <PWARegister />
           <HapticsProvider />
-          {children}
+          <DashboardProvider>{children}</DashboardProvider>
         </AuthProvider>
       </body>
     </html>

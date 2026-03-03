@@ -3,15 +3,18 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
-import { FriendsList } from "@/components/FriendsList";
+import { AddDebt } from "@/components/AddDebt";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDashboardData } from "@/contexts/DashboardContext";
 
-export default function Home() {
+export default function AddDebtPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLoading: authLoading, isAuthenticated } = useAuth();
   const { friends, isLoading, refreshData } = useDashboardData();
+
+  const selectedFriendId = searchParams.get("friendId");
+  const from = searchParams.get("from");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -19,27 +22,13 @@ export default function Home() {
     }
   }, [authLoading, isAuthenticated, router]);
 
-
-  useEffect(() => {
-    const screen = searchParams.get("screen");
-    if (screen === "history") {
-      router.replace("/history");
+  const handleBack = () => {
+    if (from === "history") {
+      router.push("/history");
       return;
     }
-    if (screen === "add-debt") {
-      const friendId = searchParams.get("friendId");
-      const from = searchParams.get("from");
-      const params = new URLSearchParams();
-      if (friendId) {
-        params.set("friendId", friendId);
-      }
-      if (from === "history") {
-        params.set("from", "history");
-      }
-      const query = params.toString();
-      router.replace(query ? `/add-debt?${query}` : "/add-debt");
-    }
-  }, [searchParams, router]);
+    router.push("/");
+  };
 
   if (authLoading || (isAuthenticated && isLoading && friends.length === 0)) {
     return (
@@ -55,11 +44,14 @@ export default function Home() {
 
   return (
     <AppShell>
-      <FriendsList
+      <AddDebt
         friends={friends}
-        onAddDebt={(friendId) => router.push(friendId ? `/add-debt?friendId=${friendId}` : "/add-debt")}
-        onSelectFriend={(friendId) => router.push(`/friends/${friendId}`)}
-        onFriendCreated={refreshData}
+        selectedFriendId={selectedFriendId}
+        onBack={handleBack}
+        onDebtCreated={async () => {
+          await refreshData();
+          handleBack();
+        }}
       />
     </AppShell>
   );
