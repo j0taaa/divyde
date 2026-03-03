@@ -7,6 +7,7 @@ const INTERACTIVE_SELECTOR =
 
 export function HapticsProvider() {
   const lastVibrationRef = useRef(0);
+  const queuedHapticRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") {
@@ -19,8 +20,16 @@ export function HapticsProvider() {
         return;
       }
 
-      navigator.vibrate(duration);
       lastVibrationRef.current = now;
+
+      if (queuedHapticRef.current !== null) {
+        window.clearTimeout(queuedHapticRef.current);
+      }
+
+      queuedHapticRef.current = window.setTimeout(() => {
+        navigator.vibrate(duration);
+        queuedHapticRef.current = null;
+      }, 0);
     };
 
     const getInteractiveElement = (target: EventTarget | null) => {
@@ -48,6 +57,10 @@ export function HapticsProvider() {
     document.addEventListener("submit", handleSubmit, true);
 
     return () => {
+      if (queuedHapticRef.current !== null) {
+        window.clearTimeout(queuedHapticRef.current);
+      }
+
       document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("submit", handleSubmit, true);
     };
